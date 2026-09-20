@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Payment Method</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 320px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .btn-wallet { background-color: #1cc88a; }
+        .btn-online { background-color: #4e73df; }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Choose Payment Method</h2>
+
+    <form th:action="@{/api/pay/wallet/{id}(id=${orderId})}" method="post">
+        <button type="submit" class="btn btn-wallet">Pay by Wallet</button>
+    </form>
+
+    <form th:action="@{/api/pay/paymentonline/{id}(id=${orderId})}" method="post">
+        <button type="submit" class="btn btn-online">Pay by Online Banking</button>
+    </form>
+</div>
+
+</body>
+</html>

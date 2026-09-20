@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password</title>
+
+    <style>
+        body{
+            margin:0;
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(120deg,#4e73df,#1cc88a);
+        }
+        .card{
+            background:#fff;
+            padding:30px;
+            width:350px;
+            border-radius:8px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.2);
+            text-align:center;
+        }
+        h2{
+            color:#4e73df;
+            margin-bottom:20px;
+        }
+        input{
+            width:100%;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:4px;
+            margin-bottom:15px;
+            font-size:14px;
+        }
+        button{
+            width:100%;
+            padding:10px;
+            background:#4e73df;
+            color:#fff;
+            border:none;
+            border-radius:4px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+        button:hover{
+            opacity:0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Forgot Password</h2>
+
+    <input type="email" id="email" placeholder="Enter your email" required>
+    <button onclick="sendEmail()">Send OTP</button>
+</div>
+
+<script>
+    function sendEmail(){
+
+        const email = document.getElementById("email").value.trim();
+
+        if(email === ""){
+            alert("Please enter email");
+            return;
+        }
+
+        fetch("/auth/sendEmail", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => {
+            if (!response.ok) {
+            return   response.text().then(text => { throw new Error(text) });
+            }
+            return response.text();
+        })
+        .then(data => {
+            alert("Otp  send successful!");
+           window.location.href = "/updatepassword.html";
+        })
+        .catch(err => {
+        alert(err.message);
+        email="";
+        });
+    }
+</script>
+
+</body>
+</html>

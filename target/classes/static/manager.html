@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Manager & Restaurant Details</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        /* Vibrant, appetizing "Food Tech" gradient background */
+        body {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            margin: 0;
+            padding: 30px 20px;
+            color: #2d3436;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            max-width: 900px;
+            margin: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        h2 {
+            text-align: center;
+            color: #d32f2f;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            color: #ff416c;
+            border-bottom: 2px solid #ffe0e0;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+
+        /* Soft, warm tinted sections instead of plain gray */
+        .section {
+            border: 1px solid #ffeded;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            background: #fffcfc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        label { font-weight: 600; display: block; margin-top: 12px; color: #555; font-size: 0.95em; }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        /* Glowing focus states */
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff416c;
+            box-shadow: 0 0 8px rgba(255, 65, 108, 0.2);
+        }
+
+        input[readonly], select:disabled {
+            background-color: #f5f6fa;
+            color: #7f8fa6;
+            cursor: not-allowed;
+        }
+
+        /* Styled Menu Item Cards */
+        .menu-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border: 2px dashed #ffb3c1;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.1);
+            border-color: #ff416c;
+        }
+
+        .menu-item input, .menu-item select { margin-top: 0; }
+        .full-width { grid-column: span 2; }
+
+        /* Premium Buttons */
+        button {
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.05em;
+            width: 100%;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.4);
+        }
+
+        /* Distinctive Add Item Button */
+        .add-btn {
+            background: #2f3542;
+            width: auto;
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 25px;
+        }
+
+        .add-btn:hover {
+            background: #1e272e;
+            box-shadow: 0 8px 20px rgba(47, 53, 66, 0.3);
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Manager Profile & Restaurant Details</h2>
+
+    <form id="managerForm">
+
+        <div class="section">
+            <h3>Manager Details</h3>
+
+            <label for="mstate">State</label>
+            <input type="text" id="mstate" value="Himachal Pradesh" readonly required>
+
+            <label for="mcity">City</label>
+            <select id="mcity" required>
+                <option value="">-- Select Manager City --</option>
+                <option value="Hamirpur">Hamirpur</option>
+                <option value="Nadaun">Nadaun</option>
+            </select>
+        </div>
+
+        <div class="section">
+            <h3>Restaurant Details</h3>
+            <label for="rname">Restaurant Name</label>
+            <input type="text" id="rname" required>
+
+            <label for="rmultipartFile">Restaurant Image</label>
+            <input type="file" id="rmultipartFile" accept="image/*" required>
+
+            <label for="rphone">Phone Number</label>
+            <input type="text" id="rphone" pattern="^[6-9]\d{9}$" placeholder="10-digit mobile number" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+
+            <label for="rstate">State</label>
+            <input type="text" id="rstate" value="Himachal Pradesh" readonly required>
+
+            <label for="rcity">City</label>
+            <select id="rcity" required>
+                <option value="">-- Select Restaurant City --</option>
+                <option value="Hamirpur">Hamirpur</option>
+                <option value="Nadaun">Nadaun</option>
+            </select>
+
+            <label for="rtown">Town / Village</label>
+            <select id="rtown" required disabled>
+                <option value="">-- Select City First --</option>
+            </select>
+
+            <label for="rpincode">Pincode</label>
+            <input type="text" id="rpincode" pattern="^[0-9]{6}$" placeholder="Auto-fills upon town selection" readonly required>
+        </div>
+
+        <div class="section">
+            <h3>Menu Items (minimum 3)</h3>
+            <div id="menuContainer"></div>
+            <button type="button" class="add-btn" onclick="addMenuItem()">+ Add Item</button>
+        </div>
+
+        <button type="submit" id="submitBtn">Submit Details</button>
+        <div id="statusMessage"></div>
+
+    </form>
+</div>
+
+<script>
+    const CLOUD_NAME = "ulwtxut7";
+    const UPLOAD_PRESET = "arun1904";
+
+    const villageData = {
+        "Nadaun": [
+            { name: "Nadaun Khas", pin: "177033" },
+            { name: "Jalari", pin: "177033" },
+            { name: "Bhumpal", pin: "177033" },
+            { name: "Dhaneta", pin: "177041" },
+            { name: "Rangas", pin: "177040" },
+            { name: "Bara", pin: "177033" },
+            { name: "Amlehar", pin: "177041" },
+            { name: "Ambi", pin: "177033" },
+            { name: "Saproh", pin: "177033" },
+            { name: "Kitpal", pin: "177033" },
+            { name: "Hathol", pin: "177033" },
+            { name: "Bela", pin: "177033" },
+            { name: "Tillu", pin: "177033" },
+            { name: "Sera", pin: "177033" },
+            { name: "Kashmir", pin: "177033" },
+            { name: "Pakhroo", pin: "177033" },
+            { name: "Batran", pin: "177033" },
+            { name: "Rail", pin: "177033" },
+            { name: "Karour", pin: "177033" },
+            { name: "Sanahi", pin: "177033" },
+            { name: "Jasai", pin: "177033" },
+            { name: "Kohla", pin: "177033" },
+            { name: "Fattehpur", pin: "177033" },
+            { name: "Churan", pin: "177033" },
+            { name: "Gagal", pin: "177033" }
+        ],
+        "Hamirpur": [
+            { name: "Hamirpur Khas", pin: "177001" },
+            { name: "Anu Kalan", pin: "177001" },
+            { name: "Anu Khurd", pin: "177001" },
+            { name: "Bajuri", pin: "177001" },
+            { name: "Jhaniari", pin: "177001" },
+            { name: "Mattan Sidh", pin: "177001" },
+            { name: "Amroh", pin: "177001" },
+            { name: "Aghar", pin: "177001" },
+            { name: "Jangal Ropa", pin: "177001" },
+            { name: "Dugha", pin: "177001" },
+            { name: "Nalti", pin: "177001" },
+            { name: "Taal", pin: "177001" },
+            { name: "Swahlwa", pin: "177001" },
+            { name: "Dosarka", pin: "177001" },
+            { name: "Daruhi", pin: "177001" },
+            { name: "Lambloo", pin: "177001" },
+            { name: "Bohni", pin: "177001" },
+            { name: "Phahal", pin: "177001" },
+            { name: "Khagal", pin: "177001" },
+            { name: "Sason", pin: "177001" },
+            { name: "Brahmani", pin: "177001" },
+            { name: "Mohin", pin: "177001" },
+            { name: "Kakru", pin: "177001" },
+            { name: "Bhota", pin: "177041" },
+            { name: "Gauna", pin: "177001" }
+        ]
+    };
+
+    const rCitySelect = document.getElementById("rcity");
+    const rTownSelect = document.getElementById("rtown");
+    const rPinInput = document.getElementById("rpincode");
+
+    rCitySelect.addEventListener("change", function () {
+        const selectedCity = this.value;
+        rTownSelect.innerHTML = '<option value="">-- Select Town / Village --</option>';
+        rPinInput.value = "";
+
+        if (selectedCity && villageData[selectedCity]) {
+            rTownSelect.disabled = false;
+            villageData[selectedCity].forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.name;
+                option.textContent = item.name;
+                option.dataset.pin = item.pin;
+                rTownSelect.appendChild(option);
+            });
+        } else {
+            rTownSelect.disabled = true;
+            rTownSelect.innerHTML = '<option value="">-- Select City First --</option>';
+        }
+    });
+
+    rTownSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        rPinInput.value = selectedOption.dataset.pin || "";
+    });
+
+    function addMenuItem(){
+        const container = document.getElementById("menuContainer");
+        const div = document.createElement("div");
+        div.className = "menu-item";
+
+        div.innerHTML = `
+            <input type="text" placeholder="Item Name" class="item-name" required>
+            <input type="number" placeholder="Price (₹)" class="item-price" min="1" step="0.01" required>
+
+            <select class="item-state" required>
+                <option value="">-- Temperature State --</option>
+                <option value="HOT">Hot</option>
+                <option value="COLD">Cold / Frozen</option>
+                <option value="AMBIENT">Ambient / Normal</option>
+            </select>
+
+            <input type="number" placeholder="Max Radius (Max 15 km)" class="item-radius" min="0.1" max="15" step="0.1" required title="Maximum distance allowed in km (up to 15)">
+
+            <input type="file" accept="image/*" class="item-image full-width" required>
+        `;
+        container.appendChild(div);
+    }
+
+    addMenuItem(); addMenuItem(); addMenuItem();
+
+    function validateMenuItems() {
+        const items = document.querySelectorAll(".menu-item");
+        if (items.length < 3) {
+            alert("Add at least 3 items.");
+            return false;
+        }
+        for (let div of items) {
+            const name = div.querySelector(".item-name").value.trim();
+            const price = parseFloat(div.querySelector(".item-price").value);
+            const state = div.querySelector(".item-state").value;
+            const radius = parseFloat(div.querySelector(".item-radius").value);
+            const imageInput = div.querySelector(".item-image");
+
+            if (name === "" || isNaN(price) || price <= 0) {
+                alert("Invalid menu item Name or Price.");
+                return false;
+            }
+            if (state === "") {
+                alert("Please select Temperature State for all items.");
+                return false;
+            }
+            if (isNaN(radius) || radius <= 0 || radius > 15) {
+                alert("Invalid Radius! Max travel radius must be between 0.1 and 15 km.");
+                return false;
+            }
+            if (imageInput.files.length === 0) {
+                alert("Please upload an image for every menu item.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    async function uploadToCloudinary(file, folderName) {
+        const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
+        formData.append("folder", folderName);
+
+        const response = await fetch(url, { method: "POST", body: formData });
+        if (!response.ok) {
+            throw new Error("Failed to upload image to Cloudinary");
+        }
+        const data = await response.json();
+        return data.secure_url;
+    }
+
+    document.getElementById("managerForm").addEventListener("submit", async function(e){
+        e.preventDefault();
+
+        if (!validateMenuItems()) return;
+
+        const submitBtn = document.getElementById("submitBtn");
+        const statusMsg = document.getElementById("statusMessage");
+
+        try {
+            submitBtn.disabled = true;
+            statusMsg.innerText = "Uploading images to Cloudinary... Please wait.";
+
+            const restaurantImgFile = document.getElementById("rmultipartFile").files[0];
+            const restaurantImageUrl = await uploadToCloudinary(restaurantImgFile, "restaurant_profiles");
+
+            const itemElements = document.querySelectorAll(".menu-item");
+            const itemList = [];
+
+            for (let div of itemElements) {
+                const itemName = div.querySelector(".item-name").value.trim();
+                const itemPrice = parseFloat(div.querySelector(".item-price").value);
+                const itemState = div.querySelector(".item-state").value;
+                const itemRadius = parseFloat(div.querySelector(".item-radius").value);
+                const itemImgFile = div.querySelector(".item-image").files[0];
+
+                const itemImageUrl = await uploadToCloudinary(itemImgFile, "menu_items");
+
+                itemList.push({
+                    name: itemName,
+                    price: itemPrice,
+                    imageUrl: itemImageUrl,
+                    state: itemState,
+                    max_radius_km: itemRadius,
+                    action: "HIDE"
+                });
+            }
+
+            statusMsg.innerText = "Images uploaded! Saving profile to backend...";
+
+            const jsonData = {
+                state: document.getElementById("mstate").value,
+                city: document.getElementById("mcity").value,
+                restaurant: {
+                    name: document.getElementById("rname").value,
+                    phoneNumber: document.getElementById("rphone").value,
+                    email: document.getElementById("email").value,
+                    town: rTownSelect.value,
+                    city: rCitySelect.value,
+                    state: document.getElementById("rstate").value,
+                    pinCode: rPinInput.value,
+                    imageUrl: restaurantImageUrl,
+                    menu: {
+                        itemList: itemList
+                    }
+                }
+            };
+
+            const response = await fetch("/auth/profilecomplete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(jsonData)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(errText || "Submission failed");
+            }
+
+            alert("Profile & Menu Submitted Successfully!");
+            window.location.href = "/mainpage";
+
+        } catch (err) {
+            alert("Error: " + err.message);
+            statusMsg.innerText = "";
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>

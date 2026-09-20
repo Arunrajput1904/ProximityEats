@@ -1,0 +1,21 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 894270161523-2fevtervbjpuoj6bruauve1hh529cehm.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+
+
+
+
+
+logging:
+  level:
+    org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter: TRACE
+    org.springframework.security.authentication: TRACE
+    org.springframework.security.web.FilterChainProxy: TRACE

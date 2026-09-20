@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society Group Cart - Realtime Payment</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f4f7f6;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-box {
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .timer-box {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d9534f;
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px dashed #d9534f;
+            border-radius: 5px;
+            display: none;
+        }
+
+        #paymentSection {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #payButton {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            background-color: #3399cc;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #payButton:hover {
+            opacity: 0.9;
+        }
+
+        #paymentInfo {
+            margin-bottom: 15px;
+        }
+
+        /* Group Cart Join Popup Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .modal-details {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-join {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-pay-status {
+            background-color: #007bff !important;
+        }
+
+        .btn-close {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-join:hover {
+            opacity: 0.9;
+        }
+
+        .btn-close:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Society Group Cart System</h2>
+
+    <div id="status" class="status-box disconnected">
+        Status: Disconnected
+    </div>
+
+    <div id="timer" class="timer-box">
+        Time Remaining: 02:00
+    </div>
+
+    <div id="paymentSection">
+        <div id="paymentInfo">
+            Payment is ready.
+        </div>
+
+        <button id="payButton">
+            Pay Now
+        </button>
+    </div>
+</div>
+
+<!-- Join Group Cart Modal Popup -->
+<div id="joinCartModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>🛒 New Group Cart Active!</h3>
+        <div class="modal-details">
+            <p><strong>Restaurant:</strong> <span id="modalRestaurantName"></span></p>
+            <p><strong>Group Cart ID:</strong> <span id="modalGroupId"></span></p>
+            <p><strong>User ID:</strong> <span id="modalUserId"></span></p>
+        </div>
+        <div id="modalButtons" class="modal-buttons">
+            <button class="btn-close" onclick="closeJoinModal()">Dismiss</button>
+            <button id="btnJoinCart" class="btn-join">Join Cart</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            return parts.pop().split(';').shift();
+        }
+        return null;
+    }
+
+    // Track session start timestamp
+    const sessionStartTime = Date.now();
+
+    // Persist processed cart IDs in sessionStorage so page refreshes don't re-trigger old popups
+    function getProcessedCarts() {
+        try {
+            const stored = sessionStorage.getItem("processedCartIds");
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function markCartAsProcessed(cartId) {
+        const carts = getProcessedCarts();
+        const idStr = String(cartId);
+        if (!carts.includes(idStr)) {
+            carts.push(idStr);
+            sessionStorage.setItem("processedCartIds", JSON.stringify(carts));
+        }
+    }
+
+    function isCartProcessed(cartId) {
+        return getProcessedCarts().includes(String(cartId));
+    }
+
+    const currentLoggedInUserId = getCookie("userId");
+    const currentSocietyId = getCookie("societyId");
+
+    const statusBox = document.getElementById("status");
+    const timerBox = document.getElementById("timer");
+    const paymentSection = document.getElementById("paymentSection");
+    const payButton = document.getElementById("payButton");
+    const paymentInfo = document.getElementById("paymentInfo");
+
+    const joinCartModal = document.getElementById("joinCartModal");
+    const modalRestaurantName = document.getElementById("modalRestaurantName");
+    const modalGroupId = document.getElementById("modalGroupId");
+    const modalUserId = document.getElementById("modalUserId");
+
+    let stompClient = null;
+    let timerInterval = null;
+    let pendingPayment = null;
+
+    if (!currentLoggedInUserId || !currentSocietyId) {
+        statusBox.innerText = "Error: 'userId' or 'societyId' cookie missing. Please log in.";
+    } else {
+        connectWebSocket(currentLoggedInUserId, currentSocietyId);
+    }
+
+    function connectWebSocket(userId, societyId) {
+        if (stompClient !== null && stompClient.connected) {
+            stompClient.disconnect();
+        }
+
+        const socket = new SockJS("http://localhost:8182/ws");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect(
+            {},
+            function (frame) {
+                statusBox.className = "status-box connected";
+                statusBox.innerText = `Connected to WebSocket | User #${userId} | Society #${societyId}`;
+
+                // 1. User Payment Topic
+                const userTopicDestination = `/topic/user/${userId}/cart`;
+                stompClient.subscribe(
+                    userTopicDestination,
+                    function (message) {
+                        try {
+                            const data = JSON.parse(message.body);
+
+                            if (data.eventType === "TRIGGER_RAZORPAY_PAYMENT") {
+                                const payData = data.userPayments;
+
+                                if (
+                                    payData &&
+                                    Number(payData.userid) === Number(currentLoggedInUserId)
+                                ) {
+                                    pendingPayment = {
+                                        cartId: data.cartId,
+                                        paymentData: payData
+                                    };
+
+                                    paymentSection.style.display = "block";
+                                    paymentInfo.innerText = `Payment required for Cart #${data.cartId}`;
+                                    startTwoMinuteTimer();
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Invalid WebSocket user message:", error);
+                        }
+                    }
+                );
+
+                // 2. Society Group Cart Broadcast Destination
+                const societyTopicDestination = `/topic/society/${societyId}/cartinfo`;
+
+                stompClient.subscribe(
+                    societyTopicDestination,
+                    function (message) {
+                        try {
+
+                            const data = JSON.parse(message.body);
+
+                            if (data.expiresAt && Date.now() > data.expiresAt) {
+                                console.log(`Cart #${data.cartId} notification expired. Ignoring.`);
+                                return; // Drop old/stale message
+                            }
+                            if (data.eventType === "TRIGGER_GROUP_CART") {
+                                const groupCart = data.groupCart || {};
+                                const cartId = data.cartId || groupCart.id;
+                                const restaurantName = (groupCart.restaurant && groupCart.restaurant.name) || "Local Restaurant";
+                                const hostUserId = groupCart.hostUser ? groupCart.hostUser.id : null;
+                                const cartStatus = data.status || groupCart.status || "ACTIVE";
+
+                                // 1. Skip if missing cartId
+                                if (!cartId) return;
+
+                                // 2. Skip cart if already shown/processed in this browser session
+                                if (isCartProcessed(cartId)) return;
+
+                                // 3. Skip cart if explicitly inactive/expired/closed
+                                if (cartStatus === "INACTIVE" || cartStatus === "EXPIRED" || cartStatus === "COMPLETED" || groupCart.isClosed) {
+                                    markCartAsProcessed(cartId);
+                                    return;
+                                }
+
+                                // 4. Robust Timestamp Guard: Check multiple common timestamp keys
+                                const rawTimestamp = data.timestamp || data.createdAt || groupCart.createdAt || groupCart.createdTime;
+                                if (rawTimestamp) {
+                                    const eventTime = new Date(rawTimestamp).getTime();
+                                    // Ignore if valid timestamp exists and was created before login/page load
+                                    if (!isNaN(eventTime) && eventTime < sessionStartTime) {
+                                        markCartAsProcessed(cartId);
+                                        return;
+                                    }
+                                }
+
+                                const isHost = Number(hostUserId) === Number(currentLoggedInUserId);
+
+                                // Non-host gets Join Cart pop-up, Host gets Ready to Pay pop-up
+                                if (!isHost) {
+                                    showJoinCartModal(cartId, currentLoggedInUserId, restaurantName);
+                                } else {
+                                    showReadyToPayModal(cartId, currentLoggedInUserId, restaurantName);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Invalid WebSocket society message:", error);
+                        }
+                    }
+                );
+            },
+            function (error) {
+                statusBox.className = "status-box disconnected";
+                statusBox.innerText = "Connection Error: Unable to connect to backend.";
+                console.error("WebSocket error:", error);
+            }
+        );
+    }
+
+    function showJoinCartModal(groupId, userId, restaurantName) {
+        // Immediately mark cart as processed so duplicate broadcasts won't open it again
+        markCartAsProcessed(groupId);
+
+        modalGroupId.innerText = groupId;
+        modalUserId.innerText = userId;
+        modalRestaurantName.innerText = restaurantName;
+
+        const modalButtons = document.getElementById("modalButtons");
+
+        modalButtons.innerHTML = `
+            <button class="btn-close" onclick="closeJoinModal()">Dismiss</button>
+            <button id="btnJoinCart" class="btn-join">Join Cart</button>
+        `;
+
+        const btnJoinCart = document.getElementById("btnJoinCart");
+
+        btnJoinCart.onclick = function () {
+            const joinUrl = `/api/joincartshow?groupId=${groupId}&userId=${userId}&restaurant=${encodeURIComponent(restaurantName)}`;
+
+            fetch(joinUrl, { method: "GET" })
+                .then(response => console.log("Joined cart request successfully processed."))
+                .catch(err => console.error("Error making request to /joincartshow:", err));
+
+            btnJoinCart.innerText = "Ready to Pay";
+            btnJoinCart.classList.add("btn-pay-status");
+
+            btnJoinCart.onclick = function () {
+                const payDoneUrl = `/api/paydone/${groupId}/${userId}`;
+
+                fetch(payDoneUrl, { method: "GET" })
+                    .then(response => {
+                        console.log("Pay status updated to INITIATED.");
+                        closeJoinModal();
+                    })
+                    .catch(err => {
+                        console.error("Error making request to /paydone:", err);
+                        closeJoinModal();
+                    });
+            };
+        };
+
+        joinCartModal.style.display = "flex";
+    }
+
+    function showReadyToPayModal(groupId, userId, restaurantName) {
+        // Mark cart as processed so duplicate broadcasts won't re-trigger it
+        markCartAsProcessed(groupId);
+
+        modalGroupId.innerText = groupId;
+        modalUserId.innerText = userId;
+        modalRestaurantName.innerText = restaurantName;
+
+        const modalButtons = document.getElementById("modalButtons");
+
+        // Directly set button to Ready to Pay without Join Cart step
+        modalButtons.innerHTML = `
+            <button class="btn-close" onclick="closeJoinModal()">Dismiss</button>
+            <button id="btnReadyToPay" class="btn-join btn-pay-status">Ready to Pay</button>
+        `;
+
+        const btnReadyToPay = document.getElementById("btnReadyToPay");
+
+        btnReadyToPay.onclick = function () {
+            const payDoneUrl = `/api/paydone/${groupId}/${userId}`;
+
+            fetch(payDoneUrl, { method: "GET" })
+                .then(response => {
+                    console.log("Pay status updated to INITIATED.");
+                    closeJoinModal();
+                })
+                .catch(err => {
+                    console.error("Error making request to /paydone:", err);
+                    closeJoinModal();
+                });
+        };
+
+        joinCartModal.style.display = "flex";
+    }
+
+    function closeJoinModal() {
+        joinCartModal.style.display = "none";
+    }
+
+    function startTwoMinuteTimer() {
+        clearInterval(timerInterval);
+        let timeRemaining = 120;
+        timerBox.style.display = "block";
+
+        timerInterval = setInterval(() => {
+            const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
+            const seconds = String(timeRemaining % 60).padStart(2, "0");
+
+            timerBox.innerText = `Time Remaining: ${minutes}:${seconds}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                timerBox.innerText = "Payment Window Expired!";
+                paymentSection.style.display = "none";
+                pendingPayment = null;
+                alert("Payment time has expired. Please initiate payment again.");
+                return;
+            }
+            timeRemaining--;
+        }, 1000);
+    }
+
+    payButton.addEventListener("click", function () {
+        if (!pendingPayment) {
+            alert("No payment is currently pending.");
+            return;
+        }
+        openRazorpayCheckout(pendingPayment.cartId, pendingPayment.paymentData);
+    });
+
+    function openRazorpayCheckout(cartId, myPayment) {
+        const options = {
+            key: myPayment.secretKey,
+            amount: Number(myPayment.totalPrice) * 100,
+            currency: "INR",
+            name: "Society Group Cart Payment",
+            description: `Split payment for Cart #${cartId}`,
+            order_id: String(myPayment.razorPay_generated_id),
+
+            handler: function (response) {
+                clearInterval(timerInterval);
+                timerBox.style.display = "none";
+                paymentSection.style.display = "none";
+
+                const groupCart = myPayment.groupid;
+                const groupPayId = myPayment.id;
+
+                // Get Uid from the globally available cookie variable (or myPayment)
+                const Uid = currentLoggedInUserId;
+
+                pendingPayment = null;
+
+                // --- NEW BACKGROUND REQUEST ADDED HERE ---
+                // Makes the GET request silently, does not redirect or change content
+                fetch(`/api/paiduser/${groupCart}/${Uid}`, { method: "GET" })
+                    .then(() => console.log("Success: background request sent to /paiduser endpoint."))
+                    .catch(err => console.error("Error contacting /paiduser endpoint:", err));
+                // -----------------------------------------
+
+                fetch(`/api/paydone/${groupCart}/${groupPayId}`, { method: "GET" })
+                    .then(() => console.log("Payment complete handled."))
+                    .catch(err => console.error("Error finalizing payment status:", err));
+            },
+            modal: {
+                ondismiss: function () {
+                    console.log("Razorpay checkout closed.");
+                }
+            },
+            theme: { color: "#3399cc" }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", function (response) {
+            alert(`Payment Failed: ${response.error.description}`);
+        });
+        rzp.open();
+    }
+</script>
+
+</body>
+</html>

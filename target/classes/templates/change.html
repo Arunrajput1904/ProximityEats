@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User change</title>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f6f8;
+        }
+        .container{
+            width:400px;
+            margin:40px auto;
+            background:white;
+            padding:25px;
+            border-radius:8px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin:8px 0;
+            border-radius:5px;
+            border:1px solid #ccc;
+        }
+        button{
+            width:100%;
+            padding:10px;
+            background:#007bff;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+        .error{
+            color:red;
+            font-size:12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>ChangeUser</h2>
+
+    <form id="changeForm">
+
+        <input type="tel" id="phoneNumber" placeholder="Phone Number (10 digits)" required
+               pattern="^[6-9]\d{9}$">
+
+
+
+        <select id="roleId" required>
+            <option value="">Select Role</option>
+            <option value="2">USER</option>
+            <option value="3">MANAGER</option>
+            <option value="4">DELIVERY_BOY</option>
+        </select>
+
+        <button type="submit">change</button>
+        <p class="error" id="errorMsg"></p>
+    </form>
+</div>
+<script>
+    document.getElementById("changeForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const userchangeDto = {
+            phoneNumber: document.getElementById("phoneNumber").value.trim(),
+             roleid: parseInt(document.getElementById("roleId").value)
+        };
+
+        fetch("/auth/change", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(userchangeDto)
+        })
+         .then(response => {
+            if (!response.ok) {
+           return response.text().then(text => { throw new Error(text) });
+            }
+            return response.text();
+        })
+        .then(data => {
+          alert("changes  completed Successfully");
+            window.location.href = "/auth/complete-profile";
+        })
+        .catch(err => {
+        alert(err.message);
+        document.getElementById("changeForm").reset();
+        });
+        });
+    });
+</script>
+
+</body>
+</html>

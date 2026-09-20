@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Group Cart Dashboard</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .dashboard-card {
+            max-width: 550px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .badge-active {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .info-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .info-group:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .info-value {
+            font-weight: 700;
+            color: #333333;
+        }
+
+        .actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn-pay {
+            display: block;
+            width: 100%;
+            padding: 14px 0;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: background-color 0.2s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .btn-pay:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-card">
+
+    <div class="header">
+        <h2>🛒 Group Cart Joined!</h2>
+        <span class="badge-active">ACTIVE SESSION</span>
+    </div>
+
+    <!-- Displaying attributes from JoinUser Model -->
+    <div class="info-group">
+        <span class="info-label">Restaurant:</span>
+        <span class="info-value" th:text="${JoinUser.restaurant != null ? JoinUser.restaurant : 'N/A'}">Local Restaurant</span>
+    </div>
+
+    <div class="info-group">
+        <span class="info-label">Group Cart ID (Gid):</span>
+        <span class="info-value" th:text="${JoinUser.groupId}">101</span>
+    </div>
+
+    <div class="info-group">
+        <span class="info-label">Your User ID (Uid):</span>
+        <span class="info-value" th:text="${JoinUser.userId}">501</span>
+    </div>
+
+    <div class="actions">
+        <!-- Dynamic link mapped to /paydone/{Gid}/{Uid} -->
+        <a th:href="@{/paydone/{Gid}/{Uid}(Gid=${JoinUser.groupId}, Uid=${JoinUser.userId})}"
+           class="btn-pay">
+            💳 Ready to Pay
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>

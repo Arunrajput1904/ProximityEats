@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Signup</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signup-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .signup-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>Signup Form</h2>
+
+    <form id="signupForm">
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" id="phoneNumber" placeholder="10 digit number" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="text" id="email" required>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Select Role</label>
+            <select id="roleid">
+                <option value="2">User</option>
+                <option value="3">Manager</option>
+                <option value="4">Delivery Boy</option>
+            </select>
+        </div>
+
+        <button type="submit">Signup</button>
+    </form>
+
+    <div id="msg" class="message"></div>
+</div>
+
+<script>
+    document.getElementById("signupForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const phonePattern = /^[6-9]\d{9}$/;
+
+        const userData = {
+            name: document.getElementById("name").value.trim(),
+            phoneNumber: document.getElementById("phoneNumber").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value.trim(),
+            roleid: parseInt(document.getElementById("roleid").value),
+        };
+
+        // Client-side validation (same as your DTO)
+        if (!phonePattern.test(userData.phoneNumber)) {
+            showMessage("Invalid phone number", "error");
+            return;
+        }
+
+        fetch("/auth/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.text();
+        })
+        .then(data => {
+            showMessage("Signup successful!", "success");
+            document.getElementById("signupForm").reset();
+            window.location.href = "/login";
+        })
+        .catch(err => {
+        alert(err.message);
+        document.getElementById("signupForm").reset();
+        });
+
+    });
+
+    function showMessage(message, type) {
+        const msg = document.getElementById("msg");
+        msg.className = "message " + type;
+        msg.innerText = message;
+    }
+</script>
+
+</body>
+</html>

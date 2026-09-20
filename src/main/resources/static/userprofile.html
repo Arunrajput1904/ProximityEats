@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Address Profile</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; height: 100vh; background: #eef2f7; display: flex; justify-content: center; align-items: center; }
+        .card { background: #ffffff; width: 420px; padding: 25px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .field { margin-bottom: 14px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; background-color: #fff; }
+        input:focus, select:focus { outline: none; border-color: #007bff; }
+        input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+        button { width: 100%; padding: 10px; background: #007bff; border: none; color: #fff; font-size: 16px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        .error { color: red; font-size: 12px; margin-top: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>User Address Profile</h2>
+
+    <form id="profileForm" novalidate>
+        <div class="field">
+            <label for="state">State *</label>
+            <input type="text" id="state" value="Himachal Pradesh" readonly required>
+            <div class="error" id="stateError"></div>
+        </div>
+
+        <div class="field">
+            <label for="city">City *</label>
+            <select id="city" required>
+                <option value="">-- Select City --</option>
+                <option value="Hamirpur">Hamirpur</option>
+                <option value="Nadaun">Nadaun</option>
+            </select>
+            <div class="error" id="cityError"></div>
+        </div>
+
+        <div class="field">
+            <label for="societyName">Society / Village Name *</label>
+            <select id="societyName" required disabled>
+                <option value="">-- Select City First --</option>
+            </select>
+            <div class="error" id="societyError"></div>
+        </div>
+
+        <div class="field">
+            <label for="pinCode">Pincode *</label>
+            <input type="text" id="pinCode" pattern="^[0-9]{6}$" placeholder="Pincode will auto-fill" required>
+            <div class="error" id="pinError"></div>
+        </div>
+
+        <button type="submit">Save Address</button>
+    </form>
+</div>
+
+<script>
+    const villageData = {
+        "Nadaun": [
+            { name: "Nadaun Khas", pin: "177033" },
+            { name: "Jalari", pin: "177033" },
+            { name: "Bhumpal", pin: "177033" },
+            { name: "Dhaneta", pin: "177041" },
+            { name: "Rangas", pin: "177040" },
+            { name: "Bara", pin: "177033" },
+            { name: "Amlehar", pin: "177041" },
+            { name: "Ambi", pin: "177033" },
+            { name: "Saproh", pin: "177033" },
+            { name: "Kitpal", pin: "177033" },
+            { name: "Hathol", pin: "177033" },
+            { name: "Bela", pin: "177033" },
+            { name: "Tillu", pin: "177033" },
+            { name: "Sera", pin: "177033" },
+            { name: "Kashmir", pin: "177033" },
+            { name: "Pakhroo", pin: "177033" },
+            { name: "Batran", pin: "177033" },
+            { name: "Rail", pin: "177033" },
+            { name: "Karour", pin: "177033" },
+            { name: "Sanahi", pin: "177033" },
+            { name: "Jasai", pin: "177033" },
+            { name: "Kohla", pin: "177033" },
+            { name: "Fattehpur", pin: "177033" },
+            { name: "Churan", pin: "177033" },
+            { name: "Gagal", pin: "177033" }
+        ],
+        "Hamirpur": [
+            { name: "Hamirpur Khas", pin: "177001" },
+            { name: "Anu Kalan", pin: "177001" },
+            { name: "Anu Khurd", pin: "177001" },
+            { name: "Bajuri", pin: "177001" },
+            { name: "Jhaniari", pin: "177001" },
+            { name: "Mattan Sidh", pin: "177001" },
+            { name: "Amroh", pin: "177001" },
+            { name: "Aghar", pin: "177001" },
+            { name: "Jangal Ropa", pin: "177001" },
+            { name: "Dugha", pin: "177001" },
+            { name: "Nalti", pin: "177001" },
+            { name: "Taal", pin: "177001" },
+            { name: "Swahlwa", pin: "177001" },
+            { name: "Dosarka", pin: "177001" },
+            { name: "Daruhi", pin: "177001" },
+            { name: "Lambloo", pin: "177001" },
+            { name: "Bohni", pin: "177001" },
+            { name: "Phahal", pin: "177001" },
+            { name: "Khagal", pin: "177001" },
+            { name: "Sason", pin: "177001" },
+            { name: "Brahmani", pin: "177001" },
+            { name: "Mohin", pin: "177001" },
+            { name: "Kakru", pin: "177001" },
+            { name: "Bhota", pin: "177041" },
+            { name: "Gauna", pin: "177001" }
+        ]
+    };
+
+    const citySelect = document.getElementById("city");
+    const societySelect = document.getElementById("societyName");
+    const pinInput = document.getElementById("pinCode");
+
+    citySelect.addEventListener("change", function() {
+        const selectedCity = this.value;
+
+        societySelect.innerHTML = '<option value="">-- Select Society / Village --</option>';
+        pinInput.value = "";
+
+        if (selectedCity && villageData[selectedCity]) {
+            societySelect.disabled = false;
+
+            villageData[selectedCity].forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.name;
+                option.textContent = item.name;
+                option.dataset.pin = item.pin;
+                societySelect.appendChild(option);
+            });
+        } else {
+            societySelect.disabled = true;
+            societySelect.innerHTML = '<option value="">-- Select City First --</option>';
+        }
+    });
+
+    societySelect.addEventListener("change", function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const pin = selectedOption.dataset.pin;
+        if (pin) {
+            pinInput.value = pin;
+        } else {
+            pinInput.value = "";
+        }
+    });
+
+    document.getElementById("profileForm").addEventListener("submit", function(e){
+        e.preventDefault();
+
+        let valid = true;
+
+        const societyName = societySelect.value.trim();
+        const city = citySelect.value.trim();
+        const state = document.getElementById("state").value.trim();
+        const pinCode = pinInput.value.trim();
+
+        document.getElementById("societyError").textContent = "";
+        document.getElementById("cityError").textContent = "";
+        document.getElementById("stateError").textContent = "";
+        document.getElementById("pinError").textContent = "";
+
+        if (!state) {
+            document.getElementById("stateError").textContent = "State is required";
+            valid = false;
+        }
+
+        if (!city) {
+            document.getElementById("cityError").textContent = "Please select a city";
+            valid = false;
+        }
+
+        if (!societyName) {
+            document.getElementById("societyError").textContent = "Please select a society / village";
+            valid = false;
+        }
+
+        if (!/^[0-9]{6}$/.test(pinCode)) {
+            document.getElementById("pinError").textContent = "Invalid 6-digit pincode";
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        const userProfileDto = {
+            societyName: societyName,
+            city: city,
+            state: state,
+            pinCode: pinCode
+        };
+
+        fetch("/auth/profilecomplete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userProfileDto)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to save profile");
+                return res.text();
+            })
+            .then(() => {
+                alert("Profile completed successfully");
+                window.location.href = "/mainpage";
+            })
+            .catch(err => alert(err.message));
+    });
+</script>
+
+</body>
+</html>

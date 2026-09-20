@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <style>
+        body{
+            margin:0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(120deg,#4e73df,#1cc88a);
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .card{
+            width:380px;
+            background:#fff;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 20px rgba(0,0,0,0.25);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .form-group{
+            margin-bottom:15px;
+        }
+
+        label{
+            font-weight:bold;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin-top:5px;
+            border-radius:5px;
+            border:1px solid #ccc;
+        }
+
+        button{
+            width:100%;
+            padding:10px;
+            background:#4e73df;
+            color:white;
+            border:none;
+            border-radius:5px;
+            font-size:15px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#2e59d9;
+        }
+
+        .links{
+            display:flex;
+            justify-content:space-between;
+            margin-top:12px;
+            font-size:14px;
+        }
+
+        .links a{
+            text-decoration:none;
+            font-weight:bold;
+            color:#4e73df;
+        }
+
+        .google{
+            margin-top:15px;
+            border:1px solid #ccc;
+            border-radius:5px;
+            padding:8px;
+            text-align:center;
+            cursor:pointer;
+            background:#fff;
+        }
+
+        .google img{
+            width:18px;
+            vertical-align:middle;
+            margin-right:8px;
+        }
+
+        .error{
+            color:red;
+            text-align:center;
+            margin-bottom:10px;
+        }
+
+        .logout{
+            color:green;
+            text-align:center;
+            margin-bottom:10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>User Login</h2>
+
+
+
+
+    <!-- 🔥 CRITICAL FORM (Spring expects this exactly) -->
+    <form action="/login" method="POST">
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <button type="submit">Login</button>
+
+        <div class="links">
+            <a href="../templates/emailsend.html">Forgot Password?</a>
+            <a href="signup.html">Register</a>
+        </div>
+    </form>
+
+    <!-- OAuth2 Login -->
+    <div class="google" onclick="googleLogin()">
+        <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png">
+        Login with Google
+    </div>
+</div>
+
+<script>
+    // Show Spring Security messages (?error, ?logout)
+    const params = new URLSearchParams(window.location.search);
+    const msg = document.getElementById("msg");
+
+    if(params.has("error")){
+        msg.innerHTML = "<div class='error'>Invalid username or password</div>";
+    }
+
+    if(params.has("logout")){
+        msg.innerHTML = "<div class='logout'>You have been logged out</div>";
+    }
+
+    function googleLogin(){
+        window.location.href = "/oauth2/authorization/google";
+    }
+</script>
+
+</body>
+</html>
+

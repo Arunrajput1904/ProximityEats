@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing Payment...</title>
+    <!-- 1. Load Razorpay Official Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .loading-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="loading-card">
+    <h2>Opening Secure Payment Window...</h2>
+    <div class="spinner"></div>
+    <p>Please do not refresh or close this page.</p>
+</div>
+
+<script th:inline="javascript">
+    // Automatically open the Razorpay modal when the page finishes loading
+    window.onload = async function() {
+        try {
+            const orderId = /*[[${orderId}]]*/ 0;
+            console.log(orderId);
+            const response = await fetch('/api/pay/razorpaycreate/'+orderId, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            // let
+            // const1.innerHTML="";
+            const options = {
+                "key": data.keyId,
+                "amount": data.amount,
+                "currency": "INR",
+                "name": "My Online Store",
+                "description": "Order Payment",
+                "order_id": data.orderId,
+                "handler": function (response) {
+                    alert("🎉 Dummy Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+
+                    // Create a dynamic form to submit via PATCH/POST and trigger page navigation
+                    const form = document.createElement('form');
+                    form.method = 'GET'; // Note: HTML forms only support POST natively
+                    form.action = "/api/pay/onlinepay/" + data.orderIdd + "/" + response.razorpay_payment_id;
+
+                    document.body.appendChild(form);
+                    form.submit(); // 👈 This will reload/redirect the browser to paymentsuccess.html!
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        alert("Payment window closed.");
+                    }
+                },
+                "prefill": {
+                    "name": data.name,
+                    "email": data.email,
+                    "contact": data.contact
+                },
+                "theme": {
+                    "color": "#4e73df"
+                }
+            };
+
+            // 3. Open the Razorpay Modal automatically!
+            const rzp = new Razorpay(options);
+            rzp.open();
+
+        } catch (error) {
+            console.error("Failed to initialize payment:", error);
+            alert("Something went wrong initializing payment.");
+        }
+    };
+</script>
+</body>
+</html>

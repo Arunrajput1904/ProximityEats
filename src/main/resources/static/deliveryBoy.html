@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Delivery Boy</title>
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body {
+            background: linear-gradient(to right, #4e73df, #1cc88a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            width: 420px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4e73df;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4e73df;
+        }
+
+        input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4e73df;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2e59d9;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #4e73df;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Add Delivery Boy</h2>
+
+    <form id="deliveryForm">
+
+        <label for="state">State</label>
+        <input type="text" id="state" value="Himachal Pradesh" readonly required>
+
+        <label for="city">City</label>
+        <select id="city" required>
+            <option value="">-- Select City --</option>
+            <option value="Hamirpur">Hamirpur</option>
+            <option value="Nadaun">Nadaun</option>
+        </select>
+
+        <label for="town">Town / Village</label>
+        <select id="town" required disabled>
+            <option value="">-- Select City First --</option>
+        </select>
+
+        <label for="pincode">Pincode</label>
+        <input type="text" id="pincode" pattern="^[0-9]{6}$" placeholder="Auto-fills upon town selection" readonly required>
+
+        <label for="vehicleNumber">Vehicle Number</label>
+        <input type="text" id="vehicleNumber" placeholder="e.g. HP 22 A 1234" required>
+
+        <label for="status">Status</label>
+        <select id="status">
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+        </select>
+
+        <button type="submit" id="submitBtn">Create Profile</button>
+    </form>
+
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+    const villageData = {
+        "Nadaun": [
+            { name: "Nadaun Khas", pin: "177033" },
+            { name: "Jalari", pin: "177033" },
+            { name: "Bhumpal", pin: "177033" },
+            { name: "Dhaneta", pin: "177041" },
+            { name: "Rangas", pin: "177040" },
+            { name: "Bara", pin: "177033" },
+            { name: "Amlehar", pin: "177041" },
+            { name: "Ambi", pin: "177033" },
+            { name: "Saproh", pin: "177033" },
+            { name: "Kitpal", pin: "177033" },
+            { name: "Hathol", pin: "177033" },
+            { name: "Bela", pin: "177033" },
+            { name: "Tillu", pin: "177033" },
+            { name: "Sera", pin: "177033" },
+            { name: "Kashmir", pin: "177033" },
+            { name: "Pakhroo", pin: "177033" },
+            { name: "Batran", pin: "177033" },
+            { name: "Rail", pin: "177033" },
+            { name: "Karour", pin: "177033" },
+            { name: "Sanahi", pin: "177033" },
+            { name: "Jasai", pin: "177033" },
+            { name: "Kohla", pin: "177033" },
+            { name: "Fattehpur", pin: "177033" },
+            { name: "Churan", pin: "177033" },
+            { name: "Gagal", pin: "177033" }
+        ],
+        "Hamirpur": [
+            { name: "Hamirpur Khas", pin: "177001" },
+            { name: "Anu Kalan", pin: "177001" },
+            { name: "Anu Khurd", pin: "177001" },
+            { name: "Bajuri", pin: "177001" },
+            { name: "Jhaniari", pin: "177001" },
+            { name: "Mattan Sidh", pin: "177001" },
+            { name: "Amroh", pin: "177001" },
+            { name: "Aghar", pin: "177001" },
+            { name: "Jangal Ropa", pin: "177001" },
+            { name: "Dugha", pin: "177001" },
+            { name: "Nalti", pin: "177001" },
+            { name: "Taal", pin: "177001" },
+            { name: "Swahlwa", pin: "177001" },
+            { name: "Dosarka", pin: "177001" },
+            { name: "Daruhi", pin: "177001" },
+            { name: "Lambloo", pin: "177001" },
+            { name: "Bohni", pin: "177001" },
+            { name: "Phahal", pin: "177001" },
+            { name: "Khagal", pin: "177001" },
+            { name: "Sason", pin: "177001" },
+            { name: "Brahmani", pin: "177001" },
+            { name: "Mohin", pin: "177001" },
+            { name: "Kakru", pin: "177001" },
+            { name: "Bhota", pin: "177041" },
+            { name: "Gauna", pin: "177001" }
+        ]
+    };
+
+    const citySelect = document.getElementById("city");
+    const townSelect = document.getElementById("town");
+    const pinInput = document.getElementById("pincode");
+
+    citySelect.addEventListener("change", function () {
+        const selectedCity = this.value;
+        townSelect.innerHTML = '<option value="">-- Select Town / Village --</option>';
+        pinInput.value = "";
+
+        if (selectedCity && villageData[selectedCity]) {
+            townSelect.disabled = false;
+            villageData[selectedCity].forEach(item => {
+                const option = document.createElement("option");
+                option.value = item.name;
+                option.textContent = item.name;
+                option.dataset.pin = item.pin;
+                townSelect.appendChild(option);
+            });
+        } else {
+            townSelect.disabled = true;
+            townSelect.innerHTML = '<option value="">-- Select City First --</option>';
+        }
+    });
+
+    townSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        pinInput.value = selectedOption.dataset.pin || "";
+    });
+
+    document.getElementById("deliveryForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const data = {
+            pincode: pinInput.value,
+            town: townSelect.value,
+            city: citySelect.value,
+            state: document.getElementById("state").value,
+            vehicleNumber: document.getElementById("vehicleNumber").value,
+            status: document.getElementById("status").value
+        };
+
+        const msgDiv = document.getElementById("message");
+        msgDiv.innerText = "Submitting profile...";
+
+        fetch("/auth/profilecomplete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Submission failed");
+                return res.text();
+            })
+            .then(() => {
+                alert("Profile Submitted Successfully!");
+                window.location.href = "/mainpage";
+            })
+            .catch(err => {
+                alert("Error: " + err.message);
+                msgDiv.innerText = "";
+            });
+    });
+</script>
+
+</body>
+</html>
