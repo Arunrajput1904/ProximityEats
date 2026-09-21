@@ -4,6 +4,8 @@ package com.arun.Restaurantbackend.Controller;
 import com.arun.Restaurantbackend.Service.SubscriptionService;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,10 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+@Hidden
 @RestController
 @RequestMapping("/api/webhooks")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "16. Webhook Apis")
 public class WebhookController {
 
 

@@ -11,6 +11,7 @@ import com.arun.Restaurantbackend.Service.GroupCartService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import com.arun.Restaurantbackend.Utilis.GroupCartStatus;
 import com.arun.Restaurantbackend.Utilis.PaymentEnum;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/")
+@Tag(name = "14. Group Apis", description = "Join/leave group cart , Add/delete  item in cart ")
 public class GroupCartController {
     private final GroupOtpTrackRepo groupOtpTrackRepo;
     private final GroupItemRepo groupItemRepo;

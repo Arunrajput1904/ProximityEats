@@ -11,6 +11,7 @@ import com.arun.Restaurantbackend.Repository.UserprofileRepo;
 import com.arun.Restaurantbackend.Service.RestaurantService;
 import com.arun.Restaurantbackend.Service.UserprofileService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Tag(name = "3. User  Apis", description = "Give Access to user to add address , find restaurant etc ")
 public class UserController {
 
 

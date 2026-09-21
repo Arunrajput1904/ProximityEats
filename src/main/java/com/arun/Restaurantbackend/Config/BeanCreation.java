@@ -5,6 +5,8 @@ import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import jakarta.servlet.MultipartConfigElement;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -226,6 +228,17 @@ public class BeanCreation {
                 .build();
     }
 
+
+
+    @Bean
+    public OpenAPI openAPI(){
+
+        return new OpenAPI()
+                .info(
+                        new Info().title("ProximityEats Apis")
+                                .description("By vipul")
+                );
+    }
 
 
 }

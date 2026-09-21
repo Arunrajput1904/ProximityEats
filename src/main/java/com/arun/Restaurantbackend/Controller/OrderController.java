@@ -5,6 +5,7 @@ import com.arun.Restaurantbackend.DTO.Orderaddress;
 import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Service.OrderService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "6. Menu Apis", description = "Give Access/remove/validate to restaurant ")
 public class OrderController{
 
     private final OrderService orderService;

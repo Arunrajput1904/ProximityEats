@@ -9,6 +9,8 @@ import com.arun.Restaurantbackend.Repository.GroupPayRepo;
 import com.arun.Restaurantbackend.Repository.OrderRepo;
 import com.arun.Restaurantbackend.Service.GroupCartService;
 import com.arun.Restaurantbackend.Service.PaymentService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +19,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-
+@Hidden
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@Tag(name = "Proxy Apis")
 public class NormalController {
     private final GroupCartRepo groupCartRepo;
     private final GroupCartService groupCartService;

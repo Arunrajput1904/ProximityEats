@@ -11,6 +11,7 @@ import com.arun.Restaurantbackend.Repository.UserRepo;
 import com.arun.Restaurantbackend.Service.AuthService;
 import com.arun.Restaurantbackend.Service.EmailProducer;
 import com.arun.Restaurantbackend.Utilis.EmailType;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "1.  Authenication Apis", description = "Signup, login ")
 public class Auth {
     private  final  AuthService authService;
         private  final UserRepo userRepo;

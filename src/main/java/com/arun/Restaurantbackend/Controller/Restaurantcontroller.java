@@ -7,6 +7,7 @@ import com.arun.Restaurantbackend.DTO.RestaurantDto;
 import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Service.RestaurantService;
 import com.arun.Restaurantbackend.Utilis.ItemAction;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/restaurant")
+@Tag(name = "10. Restaurant Apis", description = "Give Access/read/update the restaurant ")
 public class Restaurantcontroller {
 
     private final RestaurantService restaurantService;

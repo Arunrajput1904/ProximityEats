@@ -7,6 +7,7 @@ import com.arun.Restaurantbackend.Entity.Bundle;
 import com.arun.Restaurantbackend.Service.BundleService;
 import com.arun.Restaurantbackend.Utilis.BundleStatus;
 import com.arun.Restaurantbackend.Utilis.OrderEnum;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/bundle")
 @RequiredArgsConstructor
+@Tag(name = "13. BundleOrder Apis", description = "Bundle delete,update,validate,acceptBydeliveryboy, Many more")
 public class BundleController {
 
     private final BundleService bundleService;

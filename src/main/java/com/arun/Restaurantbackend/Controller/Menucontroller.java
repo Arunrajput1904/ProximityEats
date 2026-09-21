@@ -7,6 +7,7 @@ import com.arun.Restaurantbackend.Entity.Item;
 import com.arun.Restaurantbackend.Exception.FileNotUploadException;
 import com.arun.Restaurantbackend.Service.CloudinaryService;
 import com.arun.Restaurantbackend.Service.MenuService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/menu")
+@Tag(name = "9. Menu Apis", description = "Give Access to add/remove/update menu  of  restaurant ")
 public class Menucontroller {
 
 private final ModelMapper modelMapper;

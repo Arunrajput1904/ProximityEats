@@ -4,6 +4,7 @@ import com.arun.Restaurantbackend.DTO.Emailinput;
 import com.arun.Restaurantbackend.DTO.changepassword;
 import com.arun.Restaurantbackend.Service.AuthService;
 import com.arun.Restaurantbackend.Service.PasswordchangeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/change-password")
+@Tag(name = "2. Password Apis", description = "Give Password change")
 public class Passwordchange {
 
     private final AuthService authService;

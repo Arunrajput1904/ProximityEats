@@ -9,6 +9,7 @@ import com.arun.Restaurantbackend.Entity.User;
 import com.arun.Restaurantbackend.Service.CartService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import com.arun.Restaurantbackend.Utilis.CartEnum;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
+@Tag(name = "5. User Cart Apis", description = "item add/remove/update in cart")
 public class CartController {
 
 

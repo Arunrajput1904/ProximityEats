@@ -9,6 +9,7 @@ import com.arun.Restaurantbackend.Repository.OrderRepo;
 import com.arun.Restaurantbackend.Service.PaymentService;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pay")
+@Tag(name = "7. Payment  Apis", description = "Give Payment full control")
 public class PaymentController {
     @Value("${RAZOR_PAY_KEY}")
     String razorKeyId;

@@ -10,6 +10,7 @@ import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Repository.DeliveryBoyRepo;
 import com.arun.Restaurantbackend.Service.DeliveryService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "12. Delivery Boy Apis ", description = "Give access/accept/cancel order ")
 public class DeliveryController {
     private final DeliveryService deliveryService;
     private final DeliveryBoyRepo deliveryBoyRepo;
