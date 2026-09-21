@@ -1,5 +1,7 @@
 # ProximityEats
 
+**🚀 [Live Demo](https://proximityeats.onrender.com/login)** &nbsp;|&nbsp; **📘 [Swagger API Docs](https://proximityeats.onrender.com/swagger-ui.html)**
+
 **A hyperlocal, society-aware food delivery backend — where neighbours share a cart, weather shrinks the delivery map, and the kitchen ships one bag instead of five.**
 
 Built with Spring Boot 4, Spring Security (JWT + OAuth2), PostgreSQL,  Kafka, WebSocket/STOMP, and Razorpay.
@@ -53,8 +55,6 @@ Subscriptions don't rely on a human (or the user) to remember to renew:
 - A separate reminder job emails users a few days before their next billing date.
 - Idempotency keys guard the checkout flow so a duplicate subscribe request (double-click, retry, flaky network) never creates two active subscriptions.
 
-
-
 ### 👤 Role-Based Access & Auth
 JWT-based authentication with refresh tokens, Google OAuth2 login, and role-based authorization (`USER`, `MANAGER`, `DELIVERY_BOY`, `ADMIN`) enforced with `@PreAuthorize` across every controller.
 
@@ -107,7 +107,6 @@ Integration tests using Testcontainers (Postgres), and an OpenAPI/Swagger UI (`s
 - A Google OAuth2 client ID/secret (for social login)
 
 ### Configuration
-
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5433/postgres
