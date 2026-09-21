@@ -120,3 +120,7 @@ INSERT INTO society_edge (id, society1_id, society2_id, distance) VALUES
 (48, 26, 39, 6),  -- Hamirpur Khas <-> Dosarka
 (49, 31, 49, 14), -- Mattan Sidh <-> Bhota
 (50, 26, 33, 11); -- Hamirpur Khas <-> Aghar
+
+
+CREATE SCHEMA IF NOT EXISTS user_service;
+CREATE SCHEMA IF NOT EXISTS restaurant_service;

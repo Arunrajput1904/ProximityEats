@@ -20,7 +20,8 @@ public class EmailProducer {
 
 
     public void produce(EmailEvent evt){
-                kafkaTemplate.send("email-event",evt.getType().name(),evt);
+
+        kafkaTemplate.send("email-event",evt.getType().name(),evt);
     }
 
 

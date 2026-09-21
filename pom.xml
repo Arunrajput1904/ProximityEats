@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.arun</groupId>
-	<artifactId>Restaurantbackend</artifactId>
+	<artifactId>restaurantbackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Restaurantbackend</name>
 	<description>Demo project for Spring Boot</description>

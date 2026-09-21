@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import jakarta.servlet.MultipartConfigElement;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -104,6 +106,9 @@ public class BeanCreation {
     }
 
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     // =====================================================
     // Kafka Producer
     // =====================================================
@@ -116,7 +121,7 @@ public class BeanCreation {
         // Kafka broker
         props.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092"
+                bootstrapServers
         );
 
         // Key: String
@@ -155,7 +160,7 @@ public class BeanCreation {
         // Kafka broker
         props.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092"
+                bootstrapServers
         );
 
         // Consumer group
@@ -212,4 +217,15 @@ public class BeanCreation {
 
         return factory;
     }
+
+    @Bean
+    public NewTopic emailTopic() {
+        return TopicBuilder.name("email-event")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+
+
 }
