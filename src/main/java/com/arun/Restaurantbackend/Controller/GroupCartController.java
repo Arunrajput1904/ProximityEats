@@ -11,6 +11,7 @@ import com.arun.Restaurantbackend.Service.GroupCartService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import com.arun.Restaurantbackend.Utilis.GroupCartStatus;
 import com.arun.Restaurantbackend.Utilis.PaymentEnum;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+@SecurityRequirement(name = "bearerAuth")
 
 @Slf4j
 @RestController

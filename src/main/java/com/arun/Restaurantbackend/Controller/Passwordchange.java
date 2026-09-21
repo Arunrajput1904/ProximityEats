@@ -4,12 +4,14 @@ import com.arun.Restaurantbackend.DTO.Emailinput;
 import com.arun.Restaurantbackend.DTO.changepassword;
 import com.arun.Restaurantbackend.Service.AuthService;
 import com.arun.Restaurantbackend.Service.PasswordchangeService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
+@SecurityRequirement(name = "bearerAuth")
 
 @RestController
 @RequiredArgsConstructor

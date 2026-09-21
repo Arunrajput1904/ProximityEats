@@ -9,6 +9,7 @@ import com.arun.Restaurantbackend.Repository.OrderRepo;
 import com.arun.Restaurantbackend.Service.PaymentService;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+@SecurityRequirement(name = "bearerAuth")
 
 @RestController
 @RequiredArgsConstructor

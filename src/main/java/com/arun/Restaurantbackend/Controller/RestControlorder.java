@@ -5,10 +5,12 @@ import com.arun.Restaurantbackend.DTO.OrderDto;
 import com.arun.Restaurantbackend.Service.RestaurantService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import com.arun.Restaurantbackend.Utilis.OrderEnum;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+@SecurityRequirement(name = "bearerAuth")
 
 @RestController
 @RequiredArgsConstructor

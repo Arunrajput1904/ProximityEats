@@ -5,8 +5,11 @@ import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.tags.Tag;
 import jakarta.servlet.MultipartConfigElement;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -34,6 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.unit.DataSize;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -236,8 +240,35 @@ public class BeanCreation {
         return new OpenAPI()
                 .info(
                         new Info().title("ProximityEats Apis")
-                                .description("By vipul")
-                );
+                                .description("By Arun Rajput")
+                )   .components(
+                        new Components()
+                                .addSecuritySchemes(
+                                        "bearerAuth",
+                                        new SecurityScheme()
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                )
+                .tags(List.of(
+                        new Tag().name("1. Authenication Apis"),
+                        new Tag().name("2. Password Apis"),
+                        new Tag().name("3. User Apis"),
+                        new Tag().name("4. Wallet Apis"),
+                        new Tag().name("5. User Cart Apis"),
+                        new Tag().name("6. Menu Apis"),
+                        new Tag().name("7. Admin Apis"),
+                        new Tag().name("8. Manager Apis"),
+                        new Tag().name("9. Menu Apis"),
+                        new Tag().name("10. Restaurant Apis"),
+                        new Tag().name("11. Order Status Apis"),
+                        new Tag().name("12. Delivery Boy Apis"),
+                        new Tag().name("13. BundleOrder Apis"),
+                        new Tag().name("14. Group Apis"),
+                        new Tag().name("15. Subscription Apis")
+
+                ));
     }
 
 

@@ -7,6 +7,7 @@ import com.arun.Restaurantbackend.Entity.Bundle;
 import com.arun.Restaurantbackend.Service.BundleService;
 import com.arun.Restaurantbackend.Utilis.BundleStatus;
 import com.arun.Restaurantbackend.Utilis.OrderEnum;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/bundle")
 @RequiredArgsConstructor

@@ -8,6 +8,7 @@ import com.arun.Restaurantbackend.Entity.User;
 import com.arun.Restaurantbackend.Service.ManagerService;
 import com.arun.Restaurantbackend.Service.RestaurantService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+@SecurityRequirement(name = "bearerAuth")
 
 @RestController
 @RequiredArgsConstructor

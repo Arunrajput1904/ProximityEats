@@ -9,6 +9,7 @@ import com.arun.Restaurantbackend.Entity.User;
 import com.arun.Restaurantbackend.Service.CartService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import com.arun.Restaurantbackend.Utilis.CartEnum;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+@SecurityRequirement(name = "bearerAuth")
 
 @RestController
 @RequestMapping("/api/cart")

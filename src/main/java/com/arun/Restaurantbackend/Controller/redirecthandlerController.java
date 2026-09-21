@@ -1,12 +1,12 @@
-package com.arun.Restaurantbackend.Handler;
+package com.arun.Restaurantbackend.Controller;
 
 
 import com.arun.Restaurantbackend.Entity.*;
 import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Repository.*;
 import com.arun.Restaurantbackend.Service.JwtService;
-import com.arun.Restaurantbackend.Service.RefundService;
 import com.arun.Restaurantbackend.Service.SessionService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.Optional;
-
+@Hidden
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class redirecthandler {
+public class redirecthandlerController {
     private final UserprofileRepo userprofileRepo;
 
     private  final JwtService jwtcreation;
@@ -62,10 +62,9 @@ if(userprofile.isPresent()) {
     response.addCookie(cookie);
     Cookie cookie5 = new Cookie("societyId",societyN.getId().toString());
     response.addCookie(cookie5);
-    log.info(societyN.getId()+"  .................................................................................. ");
+
 }
-log.info(userprofile+"      ..........................................................................................................................................................");
-        response.sendRedirect("/loginsuccess");
+        response.sendRedirect("/swagger-ui/index.html");
                 sessionService.sessioncreation(user, token2);
                 return new UserAuth(token1, token2);
 
