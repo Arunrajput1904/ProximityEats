@@ -13,7 +13,7 @@ services:
 
       volumes:
         -   pgdata:/var/lib/postgresql/data
-        - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/init.sql:ro
+#        - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/init.sql:ro
       networks:
         - restaurant-networks
 
