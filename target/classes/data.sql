@@ -1,4 +1,14 @@
-INSERT INTO user_service.role(type)
+
+
+
+CREATE SCHEMA IF NOT EXISTS user_service;
+CREATE SCHEMA IF NOT EXISTS restaurant_service;
+CREATE SCHEMA IF NOT EXISTS order_details;
+
+DELETE FROM society_edge;
+DELETE FROM society_n;
+
+INSERT INTO role(type)
 VALUES('ADMIN'),('USER'),('MANAGER'),('DELIVERY_BOY');
 -- ==========================================
 -- 1. INSERT SOCIETIES (25 Zones, 50 Societies)
@@ -121,6 +131,3 @@ INSERT INTO society_edge (id, society1_id, society2_id, distance) VALUES
 (49, 31, 49, 14), -- Mattan Sidh <-> Bhota
 (50, 26, 33, 11); -- Hamirpur Khas <-> Aghar
 
-
-CREATE SCHEMA IF NOT EXISTS user_service;
-CREATE SCHEMA IF NOT EXISTS restaurant_service;

@@ -22,5 +22,4 @@ public class Plan {
 
     private double price;
 
-    private int durationInMonths;
 }

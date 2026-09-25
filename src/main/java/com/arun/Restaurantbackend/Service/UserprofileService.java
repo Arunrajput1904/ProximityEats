@@ -24,7 +24,8 @@ public class UserprofileService {
     public Userprofile addaddress(Userprofile userprofile) {
 
         User user = validationhandler.finduser();
-        List<Userprofile> userprofileList = userprofileRepo.findByuserid(user.getId()).orElseThrow(() -> new ResourceNoFoundException("Not found"));
+        List<Userprofile> userprofileList = userprofileRepo.findByuserid(user.getId())
+                .orElseThrow(() -> new ResourceNoFoundException("Not found"));
 
         Userprofile finalUserprofile = userprofile;
         userprofileList.stream().forEach(item -> {

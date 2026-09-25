@@ -11,6 +11,6 @@ import java.io.IOException;
 public class failurehandler extends SimpleUrlAuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
-            response.sendRedirect("http://localhost:8182/login");
+            response.sendRedirect("/login");
     }
 }

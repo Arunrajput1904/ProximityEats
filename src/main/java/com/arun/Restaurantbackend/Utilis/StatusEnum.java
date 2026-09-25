@@ -2,10 +2,10 @@ package com.arun.Restaurantbackend.Utilis;
 
 
 public enum StatusEnum {
-    AVAILABLE,
+   AVAILABLE,
     BUSY,
     UNAVAILABLE,
-    PENDING,
+    SUSPENDED,
     ACTIVE,
-    SUSPENDED
+ INACTIVE, PENDING
 }

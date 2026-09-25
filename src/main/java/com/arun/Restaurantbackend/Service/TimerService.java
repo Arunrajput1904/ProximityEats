@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class TimerService {
+    private final AuditLogRepository auditLogRepository;
     private final StopRepo stopRepo;
     private final SocietyEdgeRepo societyEdgeRepo;
     private final UserRepo userRepo;
@@ -55,7 +56,6 @@ private final BundleService bundleService;
 
     @Scheduled(cron = "0/15 * * * * *")
     void getExcuted(){
-        log.info("get executed....");
         groupCartRepo.findAll().stream().filter(x-> x.getExpiresAt().isBefore(LocalDateTime.now())
                 && x.getStatus()==GroupCartStatus.ACTIVE).forEach(x-> makeGroupOrder.makeOrder(x) );
         groupCartRepo.findAll().stream().filter(x-> x.getPaymentAt().isBefore(LocalDateTime.now())
@@ -82,13 +82,16 @@ private final BundleService bundleService;
         List<Restaurant>list=restaurantRepo.findAll();
 
         for(Restaurant restaurant : list){
-                   Long val=getNearestDeliveryBoy(restaurant);
-                   if(val>10){
-                       restaurant.setStatus(String.valueOf(StatusEnum.UNAVAILABLE));
-                   }
-                   else{
-                       restaurant.setStatus(String.valueOf(StatusEnum.AVAILABLE));
-                   }
+             if(!restaurant.getStatus().equals(String.valueOf(StatusEnum.PENDING)) && !restaurant.getStatus().equals(String.valueOf(StatusEnum.UNAVAILABLE))){
+                Long val=getNearestDeliveryBoy(restaurant);
+                if(val>15){
+                    restaurant.setStatus(String.valueOf(StatusEnum.INACTIVE));
+                }
+                else{
+                    restaurant.setStatus(String.valueOf(StatusEnum.ACTIVE));
+                }
+            }
+
 
                    restaurantRepo.save(restaurant);
         }
@@ -105,7 +108,7 @@ private final BundleService bundleService;
         for(DeliveryBoy deliveryBoy : deliveryBoys){
             Double findkm = deliveryassignservice.findkm(deliveryBoy.getTown(), restaurant.getTown());
             val=Math.min(val, findkm.longValue());
-            if(val<=10l){
+            if(val<=15l){
                 return val;
             }
         }
@@ -117,8 +120,9 @@ private final BundleService bundleService;
 
         orderRepo.findAll()
                 .stream()
-                .filter(x-> x.getOrderAcceptTime().isBefore(LocalDateTime.now().minusMinutes(15)) &&
-                        x.getStatus().equals(OrderEnum.DELIVERED))
+                .filter(x->
+                        x.getStatus().equals(OrderEnum.DELIVERED) && x.getOrderType().equals(OrderType.GROUP) && x.getOrderAcceptTime().isBefore(LocalDateTime.now().minusMinutes(15))
+                )
                 .map(x-> x.getId())
                 .map(x->  {
                     Optional<GroupCart> byOrderId = groupCartRepo.findByOrderId(x);
@@ -168,31 +172,66 @@ private final BundleService bundleService;
 
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
-    public void triggerRenewalCharges(){
-       List<Subscription> subscriptionList= subscriptionRepo.findByNextBillingAndstatus(LocalDate.now(),SubscriptionStatus.ACTIVE);
+    @Scheduled(cron = "0/30 * * * * *")
+    public void triggerRenewalCharges() throws Exception {
+        List<Subscription> dueSubscriptions = subscriptionRepo.findByNextBillingAndstatus(LocalDate.now(), SubscriptionStatus.ACTIVE);
+        RestClient restClient = RestClient.create();
+
+        for (Subscription sub : dueSubscriptions) {
+            try {
+                User user = userRepo.findById(sub.getUserId()).orElse(null);
+                if (user == null) continue;
+
+                Double cost = sub.getPlan().getPrice();
+
+                    user.getWallet().setBalance(user.getWallet().getBalance() - cost);
+                    userRepo.save(user);
 
 
-       for(Subscription sub : subscriptionList){
-           String url="https://api.razorpay.v1/subscriptions/"+sub.getGatewaySubId();
+                    String generatedRazorpayId = "N/A";
+                    try {
+                        Map<String, Object> orderRequest = new HashMap<>();
+                        orderRequest.put("amount", cost * 100);
+                        orderRequest.put("currency", "INR");
+                        orderRequest.put("receipt", "wallet_txn_" + sub.getId() + "_" + LocalDate.now());
 
-           RestClient restClient=RestClient.create();
-           Map<String, Object> body = new HashMap<>();
-           body.put("amount", sub.getPlan().getPrice()*100);
-           body.put("currency", "INR");
+                        ResponseEntity<Map> orderRes = restClient.post()
+                                .uri("https://api.razorpay.com/v1/orders")
+                                .headers(x -> x.setBasicAuth(razorKeyId, razorSecretKey))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(orderRequest)
+                                .retrieve()
+                                .toEntity(Map.class);
 
-           ResponseEntity<Map> response=    restClient.post()
-                   .uri(url)
-                   .headers(x-> x.setBasicAuth(razorKeyId,razorSecretKey))
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .retrieve()
-                   .toEntity(Map.class);
+                        generatedRazorpayId = orderRes.getBody().get("id").toString();
+                    } catch (Exception e) {
+                        log.error("Razorpay ID generation failed, but wallet was deducted. Error: {}", e.getMessage());
+                    }
 
-           if (response.getStatusCode().is2xxSuccessful()) {
-               log.info("Charge requested successfully for subscription ID: {}", sub.getId());
-           }
 
-       }
+                    sub.setNextBillingDate(sub.getNextBillingDate().plusMonths(1));
+                    subscriptionRepo.save(sub);
+
+
+                    AuditLog logRecord = new AuditLog();
+                    logRecord.setSubscriptionId(sub.getId());
+                    logRecord.setAction("WALLET_RENEWAL_SUCCESS");
+                    logRecord.setRazorpayOrderId(generatedRazorpayId);
+                    logRecord.setTimestamp(LocalDateTime.now());
+                    auditLogRepository.save(logRecord);
+
+                    log.info("Wallet charged. Razorpay ID: {}", generatedRazorpayId);
+
+                    EmailEvent emailEvent = new EmailEvent();
+                    emailEvent.setType(EmailType.SUBSCRIPTION_RENEW);
+                    emailEvent.setUser(user);
+                    emailProducer.produce(emailEvent);
+
+                }
+            catch (Exception e){
+                throw new Exception("Error Occured....");
+            }
+        }
 
     }
 
@@ -220,18 +259,22 @@ private final BundleService bundleService;
 
 
             for (Map.Entry<String, List<Order>> ss : collect1.entrySet()) {
-
+                      if (ss.getValue().size()<2){
+                          continue;
+                      }
                 boolean flag = false;
                 for (Bundle bundle : bundleRepo.findAll()) {
 
                     if (bundle.getCreatedAt().isAfter(LocalDateTime.now().minusMinutes(3)) && bundle.getZoneName().equals(ss.getKey())) {
                         flag = true;
+                        bundle.setRestaurant(restaurantRepo.findById(mp.getKey()).orElse(null));
                         bundleService.addtothebundle(bundle, ss.getValue());
                         break;
                     }
                 }
                 if (!flag) {
-                    bundleService.createnewBundle(ss.getKey(), ss.getValue());
+                    log.info("add to the bundle "+ ss.getValue().size());
+                    bundleService.createnewBundle(mp.getKey(),ss.getKey(), ss.getValue());
                 }
             }
         }
@@ -268,6 +311,7 @@ private final BundleService bundleService;
                             .filter(xx-> xx.getOrder().getCancel()!=null)
                             .toList();
 
+                    log.info(cancelorder+" .................cancel Order");
                     list.removeAll(cancelorder);
                     String town = x.getRestaurant().getTown();
                     Double price = x.getPrice();

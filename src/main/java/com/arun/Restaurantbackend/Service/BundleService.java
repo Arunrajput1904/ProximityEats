@@ -13,6 +13,7 @@ import com.arun.Restaurantbackend.Utilis.OrderEnum;
 import com.arun.Restaurantbackend.Utilis.OrderType;
 import com.arun.Restaurantbackend.Utilis.RoleEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +22,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BundleService {
-   private ModelMapper mapper;
+    private final RestaurantRepo restaurantRepo;
+    private ModelMapper mapper;
     private final BundleRepo bundleRepo;
     private final DELIVERYASSIGNSERVICE deliveryassignservice;
    private final Validationhandler validationhandler;
@@ -37,6 +40,7 @@ public class BundleService {
 
     public List<BundleResponse> findAllBundleItem() {
         List<Bundle>list=bundleRepo.findByStatus(BundleStatus.PREPARED);
+        log.info(list+"  ...........................................................Bundle");
         User user=validationhandler.finduser();
         Userprofile userprofile=userprofileRepo.findById(user.getId()).orElseThrow(()-> new ResourceNoFoundException("User address is not found"));
         return list.stream()
@@ -71,6 +75,7 @@ public class BundleService {
         bundle.setStatus(BundleStatus.OUT_OF_DELIVERY);
         bundle.getOrderBundles().stream().map(x-> x.getOrder()).forEach(x-> {
              x.setStatus(OrderEnum.OUT_FOR_DELIVERY);
+             x.setRestaurant(bundle.getRestaurant());
 
         });
         BundleDto bundleDto=mapper.map(bundle,BundleDto.class);
@@ -91,9 +96,21 @@ User user=validationhandler.finduser();
         cancelEntity.setReason(RoleEnum.DELIVERY_BOY);
 
         Bundle bundle=bundleRepo.findByIdAndStatus(id,BundleStatus.OUT_OF_DELIVERY).orElseThrow(()-> new ConflictException("Order is not valid"));
-        bundle.getOrderBundles().stream().map(x-> x.getOrder()).forEach(x-> {
+        bundle.getOrderBundles().stream().map(x-> x.getOrder())
+                .forEach(x-> {
+                    x.setStatus(OrderEnum.PROCESSING_REFUND);
+
+            CancelEntity cancel=new CancelEntity();
+
+            cancel.setOrderid(x.getId());
+
+            cancel.setReason(RoleEnum.DELIVERY_BOY);
+
+            cancel.setUserid(user.getId());
+
             x.setStatus(OrderEnum.PROCESSING_REFUND);
 
+            x.setCancel(cancel);
         });
         bundle.setCancelEntity(cancelEntity);
 
@@ -152,7 +169,7 @@ User user=validationhandler.finduser();
         if(!bundle.getRestaurant().getManagerProfile().getUser().getId().equals(finduser.getId())){
             throw new ConflictException("Invalid Bundle access");
         }
-      if(!bundle.getStatus().equals(BundleStatus.PREPARING)){
+      if(!bundle.getStatus().equals(BundleStatus.OUT_OF_DELIVERY)){
           throw new AccessDeniedException("Invalid access");
       }
         bundle.getOrderBundles()
@@ -161,7 +178,7 @@ User user=validationhandler.finduser();
                                         .forEach(x->{
                                             CancelEntity cancel=new CancelEntity();
                                             cancel.setOrderid(x.getId());
-                                            cancel.setReason(RoleEnum.DELIVERY_BOY);
+                                            cancel.setReason(RoleEnum.MANAGER);
                                             cancel.setUserid(finduser.getId());
                                             x.setStatus(OrderEnum.PROCESSING_REFUND);
                                             x.setCancel(cancel);
@@ -173,12 +190,17 @@ User user=validationhandler.finduser();
 
 
 
-                void createnewBundle(String zone, List<Order> value) {
-                    Bundle bundle1=new Bundle();
+                void createnewBundle(Long id,String zone, List<Order> value) {
+
+
+
+        Bundle bundle1=new Bundle();
+
 
                     bundle1.setZoneName(zone);
                     bundle1.setStatus(BundleStatus.BUILDING);
                     bundle1.setCreatedAt(LocalDateTime.now());
+                    bundle1.setRestaurant(restaurantRepo.findById(id).orElse(null));
 
                     List<OrderBundle> list = value.stream()
                             .filter(x-> x.getCancel() == null)
@@ -201,18 +223,26 @@ User user=validationhandler.finduser();
                 }
                 List <Order>list1= new ArrayList<>();
                 list1.addAll(i,value);
-                createnewBundle(zone,list1);
+                createnewBundle(id,zone,list1);
                 break;
             }
         }
-        if(bundle1.getOrderBundles().size()<=4 && bundle1.getOrderBundles().size()>0) {
-            bundleRepo.save(bundle1);
-        }
+
         String town = bundle1.getOrderBundles().getFirst().getOrder().getRestaurant().getTown();
 
-        if(bundle1.getOrderBundles().size()>0) {
+
+                    if(bundle1.getOrderBundles().size()<=4 && bundle1.getOrderBundles().size()>1) {
+ bundle1.setPrice(0.0);
+                        bundle1.setOptimalRoute("YOUR_CALCULATED_ROUTE_STRING   :  \n");
+                        bundleRepo.save(bundle1);
+                    }
+
+        if(bundle1.getOrderBundles().size()>1) {
+            log.info("Order Is Successfully Ordered .......");
             bundleupdationOrOrderDynamicchange(bundle1,town);
         }
+
+
     }
 
 
@@ -232,7 +262,7 @@ User user=validationhandler.finduser();
             else{
                 List <Order>list1= new ArrayList<>();
                 list1.addAll(i,value);
-                createnewBundle(bundle1.getZoneName(),list1);
+                createnewBundle(bundle1.getRestaurant().getId(),bundle1.getZoneName(),list1);
                 break;
             }
         }
@@ -246,6 +276,7 @@ User user=validationhandler.finduser();
 
     void bundleupdationOrOrderDynamicchange(Bundle bundle1, String town) {
         List<Stop> getpath = getpath(bundle1.getOrderBundles(), town);
+        log.info(getpath+"  ........................order of path");
         StringBuilder stringBuilder=new StringBuilder();
         for(int i=0; i<getpath.size(); i++){
             Stop stop=getpath.get(i);
@@ -257,7 +288,7 @@ User user=validationhandler.finduser();
         }
         bundle1.setOptimalRoute(stringBuilder.toString());
         stopRepo.saveAll(getpath);
-        int km=getpath.getLast().value;
+        int km=getpath.getLast().getValue();
         if(km<5){
             bundle1.setPrice(50.0);
         }
@@ -283,6 +314,7 @@ User user=validationhandler.finduser();
 
         int[][] ints = shortestDistance();
 
+
         Map<Integer,Integer>map=new HashMap<>();
         Map<String,Integer>stringMap=new HashMap<>();
         List<SocietyN>societyNList=societyNRepo.findAll();
@@ -290,7 +322,7 @@ User user=validationhandler.finduser();
                 .filter(x -> x.getSocietyName().equals(string))
                 .findFirst();
         int count=0;
-        map.put(first.get().getId().intValue(),count);
+        map.put(count,first.get().getId().intValue());
         stringMap.put(string,count);
         count++;
         for(OrderBundle bundle :orderBundles){
@@ -305,14 +337,17 @@ User user=validationhandler.finduser();
                 }
             }
         }
-
         int [][]mat=new int[count][count];
 
         for(int i=0; i<mat.length; i++){
             for (int j=0; j<mat.length; j++){
-                mat[i][j]=ints[map.get(i)][map.get(j)];
+        if(map.containsKey(i) && map.containsKey(j)){
+
+            mat[i][j]=ints[map.get(i)][map.get(j)];
+        }
             }
         }
+
 
         boolean []visited=new boolean[count];
 
@@ -322,14 +357,24 @@ User user=validationhandler.finduser();
         int i=0;
         int max=0;
         List<Stop>pairList=new ArrayList<>();
-        pairList.add(new Stop(i,0));
-        while (!visited[i]){
+        for(Map.Entry<String,Integer> mp: stringMap.entrySet()){
+             if(mp.getValue()==0){
+                 pairList.add(new Stop(mp.getKey(),i,0));
+                 break;
+             }
+        }
+        boolean flag=true;
+        while (flag ){
+
             visited[i]=true;
 
             int min=Integer.MAX_VALUE;
             int index=-1;
-            for(int i1 = 0; i1<mat[i].length; i++){
-                if(i==i1){
+            if(i>mat.length){
+                break;
+            }
+            for(int i1 = 0; i1<mat[i].length; i1++){
+                if(i==i1 || visited[i1]==true){
                     continue;
                 }
                 if(min>mat[i][i1]){
@@ -339,12 +384,31 @@ User user=validationhandler.finduser();
                 }
 
             }
-            pairList.add(new Stop(index,min+pairList.getLast().value));
+
+            if(index==-1){
+                break;
+            }
+//            pairList.add(new Stop(index,min+pairList.getLast().value));
+
+            for(Map.Entry<String,Integer> mp: stringMap.entrySet()){
+                if(mp.getValue()==index){
+                    pairList.add(new Stop(mp.getKey(),index,min+ pairList.getLast().getValue()));
+                    break;
+                }
+            }
             i=index;
+            if(visited[i]==true){
+                flag=false;
+            }
         }
 
 
-        return pairList;
+
+        List<Stop> stops = stopRepo.saveAllAndFlush(pairList);
+
+
+
+        return stops;
 
 
 
@@ -356,12 +420,15 @@ User user=validationhandler.finduser();
 
         List<SocietyN>list = societyNRepo.findAll();
 
-        int n=list.size()+1;
+        int n=list.size();
 
         List<SocietyEdge>edges=societyEdgeRepo.findAll();
 
 
-        int [][]mat=new int[n][n];
+        log.info(list.size()+"  "+edges.size());
+
+
+        int [][]mat=new int[n+1][n+1];
 
         for(int i=0; i<mat.length; i++){
             Arrays.fill(mat[i],Integer.MAX_VALUE);
@@ -374,15 +441,18 @@ User user=validationhandler.finduser();
             int v=(int)p;
             mat[u][v]=edge.getDistance();
             mat[v][u]=edge.getDistance();
+            log.info(edge.getId()+" "+mat[u][v]+" "+mat[v][u]);
         }
 
-        for(int k=1; k<=n; k++){
-            for(int i=1; i<=n; i++ ){
-                for(int j=1; j<=n; j++){
+        for(int k=0; k<=n; k++){
+            for(int i=0; i<=n; i++ ){
+                for(int j=0; j<=n; j++){
+                    if(i==j){
+                        continue;
+                    }
                     if(mat[i][k]==Integer.MAX_VALUE || mat[k][j]==Integer.MAX_VALUE ){
                         continue;
                     }
-
                     mat[i][j]=Math.min(mat[i][j],mat[i][k]+mat[k][j]);
                 }
             }

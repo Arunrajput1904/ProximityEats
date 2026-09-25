@@ -24,8 +24,8 @@ public interface BundleRepo extends JpaRepository<Bundle, Long> {
     @Query("select e from Bundle e where e.status=:bundleStatus And e.deliveryBoy.id=:id")
      Optional<Bundle> findByDeliveryBoyidAndStatus(@Param("id") Long id,@Param("bundleStatus") BundleStatus bundleStatus);
 
-    @Query("select e from Bundle e left join e.orderBundles o where o.order.id=:id ")
-    Optional<Bundle> findOrderByid(@PathVariable("id") Long id);
+    @Query("select e from Bundle e left join e.orderBundles o left  join  o.order or where or.id=:id ")
+    Optional<Bundle> findOrderById(@Param("id") Long id);
 
 
 

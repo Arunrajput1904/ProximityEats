@@ -54,15 +54,15 @@ public class Restaurantcontroller {
     }
 
 
-    @PatchMapping("/changestatustohide/{id}")
+    @PatchMapping("/changestatusitemtohide/{id}")
     ResponseEntity<?> changestatusofitem(@PathVariable Long id){
         restaurantService.changeStatus(id, ItemAction.HIDE);
         return ResponseEntity.ok("Status is changed successfully");
     }
 
-    @PatchMapping("/changestatustoavaliable/{id}")
+    @PatchMapping("/changestatusitemtoavaliable/{id}")
     ResponseEntity<?> changestatusofitemm(@PathVariable Long id){
-        restaurantService.changeStatus(id, ItemAction.AVAILABLE);
+        restaurantService.changeStatus(id, ItemAction.ACTIVE);
         return ResponseEntity.ok("Status is changed successfully");
     }
 

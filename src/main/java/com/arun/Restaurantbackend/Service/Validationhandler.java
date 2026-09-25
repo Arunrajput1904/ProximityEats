@@ -75,7 +75,7 @@ private final ManagerProfileRepo managerProfileRepo;
             return false;
         }
 
-        if(!(restaurant.get().getStatus().equals(String.valueOf(StatusEnum.ACTIVE)))){
+        if(!(restaurant.get().getStatus().equals(String.valueOf(StatusEnum.AVAILABLE)))){
             log.info("...........................................");
             return false;
         }

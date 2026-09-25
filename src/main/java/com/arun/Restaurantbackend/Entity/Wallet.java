@@ -39,4 +39,10 @@ public class Wallet {
         balance+=m;
     }
 
+//    @PreRemove
+//    public void trackDeletion() {
+//        System.err.println("🚨 Order " + this.id + " deleted! Trace:");
+//        Thread.dumpStack();
+//    }
+
 }

@@ -70,7 +70,7 @@ private final EntityManager entityManager;
 
         Userprofile Useraddress=userprofileRepo.findById(address.getAddressId())
                 .orElseThrow(()-> new ResourceNoFoundException("No resource found"));
-        if(Objects.equals(Useraddress.getUserid(), user.getId())==false){
+        if(!Objects.equals(Useraddress.getUserid(), user.getId())){
             throw new AccessDeniedException("Invalid address");
         }
         Cart cart=cartRepo.findByUSerIdAndStatus(user.getId(), CartEnum.ACTIVE).orElseThrow(()-> new ResourceNoFoundException("Not found cart"));
@@ -124,9 +124,10 @@ private final EntityManager entityManager;
 
         List<Cartitem>orderItemList=cart.getList();
         orderItemList.stream().forEach(item->{
+            log.info(item+"                    ..............................................cart item ");
            Long id= item.getItemid();
            Item item1=itemRepo.findById(id).orElseThrow(()-> new ResourceNoFoundException("item is not found"));
-           if(item1.getAction().equals(ItemAction.AVAILABLE)) {
+           if(item1.getAction().equals(ItemAction.ACTIVE)) {
                OrderItem orderItem = new OrderItem();
                orderItem.setOrder(order);
                orderItem.setItemName(item1.getName());
@@ -137,6 +138,7 @@ private final EntityManager entityManager;
                order.getItemList().add(orderItem);
            }
         });
+        log.info(itemtotalprice[0]+" ...............................................................................");
         order.setStatus(OrderEnum.PAYMENT_PENDING);
         order.setOrderItemCharge(itemtotalprice[0]);
         log.info("........."+ itemtotalprice[0] +" ........."+order.getDeliveryFees());
@@ -148,7 +150,7 @@ private final EntityManager entityManager;
         order.setLastpaymentTime(LocalDateTime.now().plusMinutes(2));
         order.setOrderType(OrderType.NORMAL);
 order.setUsertorestloc(estimatetimekm.getStringBuilder());
-
+        orderRepo.save(order);
 return mapper.map(order,OrderDto.class);
 
     }

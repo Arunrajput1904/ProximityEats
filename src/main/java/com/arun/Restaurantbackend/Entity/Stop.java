@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
-@Entity
+
 //@AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -15,15 +15,16 @@ import lombok.*;
 
 public  class Stop{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-            Long id;
+
     Long bundleId;
     int index;
-    public int value;
-
-    public Stop(int i, int i1) {
+     int value;
+    String placeName;
+    public Stop(String placeName,int i, int i1) {
         this.index = i;
         this.value=i1;
+        this.placeName=placeName;
     }
+
+
 }

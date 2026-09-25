@@ -2,10 +2,13 @@ package com.arun.Restaurantbackend.Controller;
 
 
 import com.arun.Restaurantbackend.DTO.AdminResponseDto;
+import com.arun.Restaurantbackend.DTO.PlanRequest;
 import com.arun.Restaurantbackend.DTO.RestaurantDto;
+import com.arun.Restaurantbackend.Entity.Plan;
 import com.arun.Restaurantbackend.Entity.Restaurant;
 import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Service.AdminService;
+import com.arun.Restaurantbackend.Service.PlanService;
 import com.arun.Restaurantbackend.Service.RestaurantService;
 import com.arun.Restaurantbackend.Service.Validationhandler;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +30,7 @@ public class AdminController {
     private final AdminService adminService;
 private final RestaurantService restaurantService;
 private final Validationhandler validationhandler;
-
+private final PlanService planService;
     @PostMapping("/asignrestauranttouser/{id}")
     public ResponseEntity<AdminResponseDto> asignrestauranttouser(@RequestBody @Valid Restaurant restaurant, @PathVariable Long id){
         RestaurantDto restaurantDto=adminService.asignrestranunttomanager(restaurant,id);
@@ -62,5 +65,17 @@ private final Validationhandler validationhandler;
         List<RestaurantDto>list=restaurantService.getallbystatus("PENDING").orElseThrow(()-> new ResourceNoFoundException("No Pending restaurant"));
         AdminResponseDto adminResponseDto=AdminResponseDto.builder().adminName(validationhandler.finduser().getName()).restaurant(list).build();
         return ResponseEntity.ok(adminResponseDto);
+    }
+
+    @PostMapping("/addplan")
+    ResponseEntity<Plan> addplain(@RequestBody PlanRequest plan){
+Plan plan1=planService.addplan(plan);
+return ResponseEntity.ok(plan1);
+    }
+
+    @DeleteMapping("/deleteplan/{id}")
+    ResponseEntity<String> removeplain(@PathVariable Long id){
+        planService.removeplan(id);
+        return ResponseEntity.ok("Deleted Successfully");
     }
 }

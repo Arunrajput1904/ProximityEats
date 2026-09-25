@@ -49,5 +49,5 @@ private String imageUrl;
 
     String email;
 
-    private StatusEnum status;
+    private String status;
 }

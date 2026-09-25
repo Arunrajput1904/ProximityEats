@@ -31,10 +31,10 @@ public class BundleController {
         return ResponseEntity.ok(bundleList);
     }
 
-    @PatchMapping("/acceptbundle")
+    @PatchMapping("/acceptbundle/{id}")
     @PreAuthorize("hasRole('DELIVERY_BOY')")
-    public ResponseEntity<BundleDto> acceptBundle(@RequestBody BundleRequest bundleRequest){
-         BundleDto bundleDtos=bundleService.makethebundleaccept(bundleRequest.getBundleId());
+    public ResponseEntity<BundleDto> acceptBundle(@PathVariable  Long id){
+         BundleDto bundleDtos=bundleService.makethebundleaccept(id);
 
          return ResponseEntity.ok(bundleDtos);
     }
@@ -83,7 +83,7 @@ public class BundleController {
         return  ResponseEntity.ok(bundleDto);
     }
 
-    @PatchMapping("/cancelbundle")
+    @PatchMapping("/cancelbundlee/{id}")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<?> cancelOrders(@PathVariable Long id){
        bundleService.canceloverallBundle(id);

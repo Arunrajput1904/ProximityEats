@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+//@ToString
 @Entity
 @Table(schema = "restaurant_service")
 public class Order {
@@ -97,6 +97,12 @@ public class Order {
     OrderType orderType;
 
 
+
+    @PreRemove
+    public void trackDeletion() {
+        System.err.println("🚨 WARNING: Order entity with ID " + this.id + " is being deleted! 🚨");
+        Thread.dumpStack();
+    }
 
 
 

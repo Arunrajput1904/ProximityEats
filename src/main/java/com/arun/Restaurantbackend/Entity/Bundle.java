@@ -33,7 +33,7 @@ public class Bundle {
     @JoinColumn(name = "restaurant_id")
     Restaurant restaurant;
 
-    @Column(nullable = false)
+
     String optimalRoute;
 
 
@@ -47,7 +47,7 @@ public class Bundle {
     LocalDateTime createdAt;
 
     @OneToMany(orphanRemoval = true,fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    List<OrderBundle> orderBundles;
+    List<OrderBundle> orderBundles=new ArrayList<>();
 
 
     Integer itemCount=0;

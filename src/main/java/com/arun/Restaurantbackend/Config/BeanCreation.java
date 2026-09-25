@@ -252,9 +252,9 @@ public class BeanCreation {
                                 )
                 )
                 .tags(List.of(
-                        new Tag().name("1. Authenication Apis"),
+                        new Tag().name("1.  Authenication Apis"),
                         new Tag().name("2. Password Apis"),
-                        new Tag().name("3. User Apis"),
+                        new Tag().name("3. User  Apis"),
                         new Tag().name("4. Wallet Apis"),
                         new Tag().name("5. User Cart Apis"),
                         new Tag().name("6. Menu Apis"),
@@ -263,7 +263,7 @@ public class BeanCreation {
                         new Tag().name("9. Menu Apis"),
                         new Tag().name("10. Restaurant Apis"),
                         new Tag().name("11. Order Status Apis"),
-                        new Tag().name("12. Delivery Boy Apis"),
+                        new Tag().name("12. Delivery Boy Apis "),
                         new Tag().name("13. BundleOrder Apis"),
                         new Tag().name("14. Group Apis"),
                         new Tag().name("15. Subscription Apis")

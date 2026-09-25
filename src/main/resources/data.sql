@@ -5,8 +5,8 @@ CREATE SCHEMA IF NOT EXISTS user_service;
 CREATE SCHEMA IF NOT EXISTS restaurant_service;
 CREATE SCHEMA IF NOT EXISTS order_details;
 
-
-
+DELETE FROM society_edge;
+DELETE FROM society_n;
 
 INSERT INTO role(type)
 VALUES('ADMIN'),('USER'),('MANAGER'),('DELIVERY_BOY');

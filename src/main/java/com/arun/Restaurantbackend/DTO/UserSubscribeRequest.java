@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class UserSubscribeRequest {
 
     String idempotencyKey;
-    Long userId;
+
     Long planId;
 
 }

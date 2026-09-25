@@ -7,6 +7,7 @@ import com.arun.Restaurantbackend.Repository.*;
 import com.arun.Restaurantbackend.Utilis.OrderEnum;
 import com.arun.Restaurantbackend.Utilis.OrderType;
 import com.arun.Restaurantbackend.Utilis.RoleEnum;
+import com.arun.Restaurantbackend.Utilis.StatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
 public class RefundService {
 
 
@@ -41,13 +41,30 @@ public class RefundService {
 
 
     @Transactional
-    @Scheduled(cron = "0 0 7 * * *")
+    @Scheduled(cron = "0 10 * * * *")
     void ordersettlement() {
-        List<Order> orderList = orderRepo.findAll();
 
-        if(orderList!=null){
-            orderList.stream().forEach(order->  evaluateorder(order));
+        LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
+        List<Order> expiredOrders = orderRepo.findExpiredPendingOrders(tenMinutesAgo);
+
+        for (Order order : expiredOrders) {
+            if (order.getOrderType().equals(OrderType.BUNDLE)) {
+                Bundle bundle = bundleRepo.findOrderById(order.getId()).orElse(null);
+                if (bundle != null) {
+
+                    bundleRepo.delete(bundle);
+                }
+            }
+
+            order.setStatus(OrderEnum.PAYMENT_DONE);
         }
+
+        orderRepo.saveAll(expiredOrders);
+
+        List<Order> ordersToEvaluate = orderRepo.findActiveOrdersForEvaluation();
+        ordersToEvaluate.forEach(this::evaluateorder);
+
+        log.info("Order settlement task completed successfully.");
     }
 
 
@@ -55,7 +72,7 @@ public class RefundService {
   @Transactional
   public   void evaluateorder(Order order){
 
-
+log.info("Order is send  for evaluation.....");
         User Normaluser=order.getUser();
 
         Normaluser=userRepo.findByid(Normaluser.getId()).orElseThrow(()-> new ResourceNoFoundException("not found"));
@@ -66,8 +83,10 @@ public class RefundService {
 
 
         User admin = userRepo.findByEmail(AdminEmial).orElseThrow(() -> new ResourceNoFoundException("Not found"));
-
-        if (order.getStatus().equals(OrderEnum.PAYMENT_PENDING)) {
+if(order.getStatus().equals(OrderEnum.CONFIRMED) && order.getLastpaymentTime().isAfter(LocalDateTime.now())){
+    return;
+}
+        if (order.getStatus().equals(OrderEnum.PAYMENT_PENDING) || order.getStatus().equals(OrderEnum.PAYMENT_DONE)) {
             orderRepo.delete(order);
             return;
         }
@@ -90,7 +109,7 @@ public class RefundService {
                 adminwallet.setBalance(adminwallet.getBalance() - deliveryboyfees);
                 deliveryboywallet.setBalance(deliveryboywallet.getBalance() + deliveryboyfees);
             }
-             orderRepo.delete(order);
+            order.setStatus(OrderEnum.PAYMENT_DONE);
 //         }
             return;
         }
@@ -98,11 +117,8 @@ public class RefundService {
         if (order.getStatus().equals(OrderEnum.PROCESSING_REFUND) && order.getCancel() != null) {
             if (order.getCancel().getReason().equals(RoleEnum.USER)) {
                 if (Normaluser.getCancelApproveTime() < Cancelationlimit) {
-
                     Wallet adminwallet = admin.getWallet();
                     Wallet userwallet = Normaluser.getWallet();
-
-
                     if(order.getOrderType().equals(OrderType.GROUP)){
                         grouppayrefund(adminwallet,order);
                     }
@@ -112,15 +128,15 @@ public class RefundService {
                         userwallet.setBalance(userwallet.getBalance() + orderprice1);
                     }
                     Normaluser.setCancelApproveTime(Normaluser.getCancelApproveTime() + 1);
-
-                    orderRepo.delete(order);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
                 } else {
-                    orderRepo.delete(order);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+
                     userRepo.delete(Normaluser);
                 }
             } else if (order.getCancel().getReason().equals(RoleEnum.MANAGER)) {
                 User manageruser = manager.getUser();
-                if (manageruser.getCancelApproveTime() < Cancelationlimit*3) {
+                if (manageruser.getCancelApproveTime() < Cancelationlimit*8) {
                     Wallet adminwallet = admin.getWallet();
                     Wallet userwallet = Normaluser.getWallet();
                     if(order.getOrderType().equals(OrderType.GROUP)){
@@ -133,15 +149,18 @@ public class RefundService {
 
                     }
                     manageruser.setCancelApproveTime(manageruser.getCancelApproveTime() + 1);
-                    orderRepo.delete(order);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+
                 } else {
-                    orderRepo.delete(order);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+
+
                     userRepo.delete(manageruser);
                 }
             } else {
                 DeliveryBoy deliveryBoy = null;
                 if(order.getOrderType().equals(OrderType.BUNDLE)){
-                    Bundle bundle = bundleRepo.findOrderByid(order.getId()).orElseThrow(() -> new ResourceNoFoundException("Resource is not found"));
+                    Bundle bundle = bundleRepo.findOrderById(order.getId()).orElseThrow(() -> new ResourceNoFoundException("Resource is not found"));
 
                     deliveryBoy= bundle.getDeliveryBoy();
                 }
@@ -192,8 +211,9 @@ public class RefundService {
                     adminwallet.setBalance(adminwallet.getBalance() - orderprice);
                     userwallet.setBalance(userwallet.getBalance() + orderprice);
                 }
-                order.setStatus(OrderEnum.PAYMENT_PENDING);
-                orderRepo.delete(order);
+                log.info(userwallet.getBalance()+"  ....................................................................");
+                order.setStatus(OrderEnum.PAYMENT_DONE);
+//                orderRepo.delete(order);
             }
             else if(order.getStatus().equals(OrderEnum.PREPARING)){
                 if(restaurant.getCancelApproveTime()<=Cancelationlimit){
@@ -210,12 +230,12 @@ public class RefundService {
                         adminwallet.setBalance(adminwallet.getBalance() - orderprice1);
                         userwallet.setBalance(userwallet.getBalance() + orderprice1);
                     }
-                    order.setStatus(OrderEnum.PAYMENT_PENDING);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
                     restaurant.setCancelApproveTime(restaurant.getCancelApproveTime()+1l);
                 }
                 else{
-                    orderRepo.delete(order);
-                    restaurantRepo.delete(restaurant);
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+                    restaurant.setStatus(String.valueOf(StatusEnum.INACTIVE));
                 }
             }
             else if(order.getStatus().equals(OrderEnum.PREPARED)){
@@ -236,7 +256,51 @@ public class RefundService {
                     userwallet.setBalance(userwallet.getBalance() + orderprice1);
                 }
 
-                order.setStatus(OrderEnum.PAYMENT_PENDING);
+                order.setStatus(OrderEnum.PAYMENT_DONE);
+            }
+            else if (order.getStatus().equals(OrderEnum.OUT_FOR_DELIVERY)){
+                DeliveryBoy deliveryBoy = null;
+                if(order.getOrderType().equals(OrderType.BUNDLE)){
+                    Bundle bundle = bundleRepo.findOrderById(order.getId()).orElseThrow(() -> new ResourceNoFoundException("Resource is not found"));
+
+                    deliveryBoy= bundle.getDeliveryBoy();
+                }
+                else{
+                    deliveryBoy = deliveryBoyRepo.findByorderid(order.getId()).orElseThrow(()
+                            -> new ResourceNoFoundException("Delivery boy is not found"));
+                }
+
+
+
+                User manageruser = manager.getUser();
+
+
+                User userprofile = deliveryBoy.getUser();
+
+                if (userprofile.getCancelApproveTime() < Cancelationlimit*3) {
+                    Wallet restaurantwallet = manageruser.getWallet();
+                    Wallet adminwallet = admin.getWallet();
+                    Double orderprice = Double.valueOf(String.valueOf(order.getOrderItemCharge()));
+                    adminwallet.setBalance(adminwallet.getBalance() - orderprice);
+                    restaurantwallet.setBalance(restaurantwallet.getBalance() + orderprice);
+                    userprofile.setCancelApproveTime(manageruser.getCancelApproveTime() + 1);
+                    Wallet userwallet = Normaluser.getWallet();
+                    if(order.getOrderType().equals(OrderType.GROUP)){
+                        grouppayrefund(adminwallet,order);
+                    }
+                    else {
+                        Double orderprice1 = Double.valueOf(String.valueOf(order.getTotalGrant()));
+                        adminwallet.setBalance(adminwallet.getBalance() - orderprice1);
+                        userwallet.setBalance(userwallet.getBalance() + orderprice1);
+                    }
+
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+
+                } else {
+                    order.setStatus(OrderEnum.PAYMENT_DONE);
+
+                    userRepo.delete(userprofile);
+                }
             }
 
 

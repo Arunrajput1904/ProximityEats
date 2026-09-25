@@ -66,7 +66,8 @@ public class PaymentService {
                 throw new InvalidRequestException("Invalid order id");
             }
 
-            Userprofile userprofile = userprofileRepo.findByUserid(user.getId()).orElseThrow(() -> new ResourceNoFoundException("not found userprofile"));
+            Userprofile userprofile = userprofileRepo.findByUserid(user.getId()).orElseThrow(() ->
+                    new ResourceNoFoundException("not found userprofile"));
 
 
             httpServletResponse.sendRedirect("/api/pay/payment/"+orderid);
@@ -98,7 +99,10 @@ public class PaymentService {
         User adminuser = userRepo.findByEmail(adminEmail).orElseThrow(() -> new ResourceNoFoundException(" " +
                 "Admin is not registered"));
 
-
+        Payment payment1 = paymentRepo.findbyorderRefIdAndstatus(orderid, PaymentEnum.PAID);
+        if (payment1 != null) {
+            throw new IllegalPaymentException("Order payment is already done");
+        }
 
         Wallet wallet = user.getWallet();
 
@@ -108,10 +112,10 @@ public class PaymentService {
         if (m1 < m2) {
             throw new IllegalPaymentException("Insufficient money");
         }
-
-        if (order.getLastpaymentTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalPaymentException("payment session expired , try again");
-        }
+//
+//        if (order.getLastpaymentTime().isBefore(LocalDateTime.now())) {
+//            throw new IllegalPaymentException("payment session expired , try again");
+//        }
         Cart cart = cartRepo.findByUSerIdAndStatus(user.getId(), CartEnum.ACTIVE).orElseThrow(() -> new ResourceNoFoundException("Not found cart"));
         synchronized (this) {
             Double Admincurrentbalance = adminuser.getWallet().getBalance();
@@ -146,47 +150,61 @@ public class PaymentService {
 
 
 
-    OrderDto orderSuccess(Order order, User user, Cart cart){
-        log.info(cartRepo.findAll()+"  ....................................." +
-                "...................................."+user.getId());
-        if(cart==null){
-            cart=cartRepo.findByUSerIdAndStatus(user.getId(),CartEnum.ACTIVE).
-                    orElseThrow(()-> new ResourceNoFoundException("Cart is not found"));
+    OrderDto orderSuccess(Order order, User user, Cart cart) {
+        log.info("Processing order success for user ID: " + user.getId());
+
+        if (cart == null) {
+            cart = cartRepo.findByUSerIdAndStatus(user.getId(), CartEnum.ACTIVE)
+                    .orElseThrow(() -> new ResourceNoFoundException("Cart is not found"));
         }
 
         System.out.println(" order success");
+
         Payment payment = new Payment();
-        List<Payment> list = paymentRepo.findAll();
-        payment.setCounter((long) list.size());
+        long paymentCount = paymentRepo.count();
+        payment.setCounter(paymentCount);
+
         order.setStatus(OrderEnum.CONFIRMED);
-        Userprofile userprofile = userprofileRepo
-                .findByUserid(user.getId()).orElseThrow(() -> new ResourceNoFoundException("not found userprofile"));
+        Userprofile userprofile = userprofileRepo.findByUserid(user.getId())
+                .orElseThrow(() -> new ResourceNoFoundException("not found userprofile"));
         order.setAddress(userprofile);
-        Estimatetimekm estimatetimekm = deliveryassignservice.
-                findestimatedistanceandtime(userprofile.getSocietyName(), order.getRestaurant().getTown());
+
+        Estimatetimekm estimatetimekm = deliveryassignservice
+                .findestimatedistanceandtime(userprofile.getSocietyName(), order.getRestaurant().getTown());
+
         order.setEstimatekm(estimatetimekm.getEstkm());
         order.setEstimatedeliverytime(estimatetimekm.getEstimatetime());
+
         long minutes = Duration.between(LocalDateTime.now(), estimatetimekm.getEstimatetime()).toMinutes();
         order.setEstimatetime(minutes + " min");
         order.setUsertorestloc(estimatetimekm.getStringBuilder());
+
         order.setOrderAcceptTime(LocalDateTime.now().plusMinutes(2));
         order.setLastUpdateTime(LocalDateTime.now());
+
+        // 2. Soft-delete the cart (DO NOT use cartRepo.delete(cart) here)
         cart.setStatus(CartEnum.INACTIVE);
-        mailservice.sendmailofOrder(user.getEmail(), order);
-        mailservice.sendmailofOrder(order.getRestaurant().getEmail(), order);
-        payment.setStatus(PaymentEnum.PAID);
-        cartRepo.delete(cart);
+        cartRepo.save(cart);
+
+
         Cart cart1 = new Cart();
         cart1.setUserId(user.getId());
         cart1.setStatus(CartEnum.ACTIVE);
         cartRepo.save(cart1);
+
+
         userRepo.save(user);
-       Order order1= orderRepo.save(order);
+        Order order1 = orderRepo.save(order);
+
         payment.setOrderRefId(order1.getId());
+        payment.setStatus(PaymentEnum.PAID);
         paymentRepo.save(payment);
 
-      return   mapper.map(order1,OrderDto.class);
 
+        mailservice.sendmailofOrder(user.getEmail(), order);
+        mailservice.sendmailofOrder(order.getRestaurant().getEmail(), order);
+
+        return mapper.map(order1, OrderDto.class);
     }
 }
 

@@ -1,5 +1,5 @@
 package com.arun.Restaurantbackend.Utilis;
 
 public enum ItemAction {
-    AVAILABLE, HIDE
+    ACTIVE, HIDE
 }

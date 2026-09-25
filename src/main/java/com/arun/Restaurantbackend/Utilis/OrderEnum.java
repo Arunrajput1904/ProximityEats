@@ -10,6 +10,6 @@ public enum OrderEnum {
     DELIVERED,
     REFUND,
     PROCESSING_REFUND,
-    EXPIRED_TIME
+    PAYMENT_DONE, EXPIRED_TIME
 
 }

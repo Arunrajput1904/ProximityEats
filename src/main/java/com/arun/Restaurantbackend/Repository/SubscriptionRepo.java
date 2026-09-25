@@ -16,4 +16,8 @@ public interface SubscriptionRepo extends JpaRepository<Subscription,Long> {
 
     @Query("select e from Subscription e where e.status=:subscriptionStatus AND e.nextBillingDate=:now ")
     List<Subscription> findByNextBillingAndstatus(LocalDate now, SubscriptionStatus subscriptionStatus);
+
+
+    @Query("select e from Subscription e where e.userId=:userid And e.planId=:Subid")
+    Optional<Subscription> findByUserIdAndSubId(Long userid, Long Subid);
 }

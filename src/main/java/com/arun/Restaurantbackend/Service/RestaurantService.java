@@ -88,7 +88,9 @@ public class RestaurantService {
         Restaurant restaurant = restaurantRepo.findById(id).orElseThrow(() -> new ResourceNoFoundException("No restaurant found"));
 
         if (name.equals(String.valueOf(StatusEnum.ACTIVE)) || name.equals(String.valueOf(StatusEnum.PENDING)) || name.equals(String.valueOf(StatusEnum.SUSPENDED))) {
+//            log.info(name+"................................................");
             restaurant.setStatus(name);
+            restaurantRepo.saveAndFlush(restaurant);
         } else {
             throw new BadRequestException("Invalid name");
         }
@@ -113,9 +115,13 @@ public class RestaurantService {
                 Sort.by(Sort.Order.asc(sortBy), Sort.Order.desc("pinCode"))
         ));
 
+
+
         if (restaurantList.isEmpty()) {
             throw new ResourceNoFoundException("Not found");
         }
+
+        log.info(restaurantList.get()+".................................................Restaurant ...?   ");
 
         List<DemoRestaurant> list = restaurantList.get().stream().map(item -> mapper.map(item, DemoRestaurant.class)).collect(Collectors.toList());
 
@@ -150,7 +156,7 @@ public class RestaurantService {
         long minute = Duration.between(LocalDateTime.now(), order.getEstimatedeliverytime()).toMinutes();
         if (orderEnum2.equals(OrderEnum.PREPARING)) {
             if (order.getEstimatedeliverytime().isBefore(LocalDateTime.now()) || minutes >= minute) {
-                throw new ConflictException("Order accept time is expried");
+                throw new ConflictException("Not able to make a Order status change , expired ");
             }
         }
         order.setStatus(orderEnum);
@@ -159,6 +165,9 @@ public class RestaurantService {
             order.setOrderAcceptTime(LocalDateTime.now().plusMinutes(5));
         }
         else{
+            if(order.getOrderAcceptTime().isAfter(LocalDateTime.now())){
+                throw new AccessDeniedException("Try after some time , you have to wait for 5 min after change the order tpo preparing ");
+            }
             order.setOrderAcceptTime(LocalDateTime.now().plusMinutes(2));
         }
         order.setLastUpdateTime(LocalDateTime.now());
@@ -183,7 +192,7 @@ public class RestaurantService {
                 .forEach(x -> {
                     if (x.getMax_radius_km() < km) {
                         ItemDto itemDto = mapper.map(x, ItemDto.class);
-                        itemDto.setAction(ItemAction.AVAILABLE);
+                        itemDto.setAction(ItemAction.ACTIVE);
                         list.add(itemDto);
                     } else {
                         ItemDto itemDto = mapper.map(x, ItemDto.class);

@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionhandler {
 
 
-//    @ExceptionHandler(ResourceNoFoundException.class)
-//    ResponseEntity<Apierror> NoResourceFoundException(ResourceNoFoundException exception){
-//        Apierror apierror=Apierror.builder().status(404).reason(HttpStatus.NOT_FOUND).message(exception.getMessage()).build();
-//
-//        return new ResponseEntity<>(apierror,HttpStatus.NOT_FOUND);
-//    }
+    @ExceptionHandler(ResourceNoFoundException.class)
+    ResponseEntity<Apierror> NoResourceFoundException(ResourceNoFoundException exception){
+        Apierror apierror=Apierror.builder().status(404).reason(HttpStatus.NOT_FOUND).message(exception.getMessage()).build();
+
+        return new ResponseEntity<>(apierror,HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<Apierror> AccessDeniedException(AccessDeniedException exception){
         Apierror apierror=Apierror.builder().status(403).reason(HttpStatus.FORBIDDEN).message(exception.getMessage()).build();

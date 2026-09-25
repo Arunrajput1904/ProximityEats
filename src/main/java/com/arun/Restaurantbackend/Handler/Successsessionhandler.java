@@ -58,14 +58,14 @@ private final UserService userService;
 
         }
         if(user.getPhoneNumber()==null && user.getRole()==null){
-        response.sendRedirect("http://localhost:8182/change.html");
+        response.sendRedirect("/change.html");
          }
      else{
         if(user.getProfileComplete().equals(false) || user.getProfileComplete()==null){
          response.sendRedirect("/auth/complete-profile");
         }
         else {
-        response.sendRedirect("http://localhost:8182/mainpage");
+        response.sendRedirect("/mainpage");
     }
     }
     }

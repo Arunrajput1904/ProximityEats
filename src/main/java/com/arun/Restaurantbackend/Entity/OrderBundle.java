@@ -23,6 +23,8 @@ public class OrderBundle {
 
    @OneToOne(fetch = FetchType.EAGER)
    @JoinColumn(name = "order_id")
+
+//   @ManyToOne(cascade = CascadeType.ALL)
     Order order;
 
     private Integer positionInRoute;
@@ -30,6 +32,7 @@ public class OrderBundle {
 
     @ManyToOne
     @JoinColumn(name = "bundle_id")
+            @ToString.Exclude
     Bundle bundle;
 
 

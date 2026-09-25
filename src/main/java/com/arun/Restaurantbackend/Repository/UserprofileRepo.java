@@ -18,4 +18,5 @@ public interface UserprofileRepo extends JpaRepository<Userprofile,Long> {
 
     @Query("select e from Userprofile e where e.userid=:id")
     Optional<List<Userprofile>> findByuserid(@Param("id") Long userid);
+
 }

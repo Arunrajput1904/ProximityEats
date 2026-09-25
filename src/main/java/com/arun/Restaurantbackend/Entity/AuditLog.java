@@ -20,4 +20,7 @@ public class AuditLog {
     private Long subscriptionId;
     private String action;
     private LocalDateTime timestamp;
+private String RazorpayOrderId;
+//    public void setRazorpayOrderId(String generatedRazorpayId) {
+//    }
 }

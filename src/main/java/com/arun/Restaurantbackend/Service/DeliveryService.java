@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class DeliveryService {
+
     private final UserprofileRepo userprofileRepo;
     private final Mailsender mailsender;
     private final DeliveryBoyRepo deliveryBoyRepo;
@@ -48,7 +49,8 @@ private final DELIVERYASSIGNSERVICE deliveryassignservice;
 
        User user=validationhandler.finduser();
 
-       Userprofile userprofile=userprofileRepo.findByUserid(user.getId()).orElseThrow(()-> new ResourceNoFoundException("No delivery boy exist"));
+       DeliveryBoy userprofile=deliveryBoyRepo.findByUserid(user.getId()).
+               orElseThrow(()-> new ResourceNoFoundException("No delivery boy exist"));
 
         List<Order>orderList=orderRepo.findallbystatus(OrderEnum.PREPARED);
 
@@ -63,7 +65,7 @@ private final DELIVERYASSIGNSERVICE deliveryassignservice;
            Duration duration=Duration.between(order.getOrderAcceptTime(),LocalDateTime.now());
 
            if(duration.getSeconds()>=60 && duration.getSeconds()<=120){
-               Double findkm = deliveryassignservice.findkm(order.getRestaurant().getTown(), userprofile.getSocietyName());
+               Double findkm = deliveryassignservice.findkm(order.getRestaurant().getTown(), userprofile.getTown());
                        order.setDeliveryFees(order.getDeliveryFees().add(new BigDecimal(30)));
                if(findkm<=15){
                    filterorder.add(order);
@@ -72,7 +74,7 @@ private final DELIVERYASSIGNSERVICE deliveryassignservice;
            }
 
            else if(duration.getSeconds()>=0 && duration.getSeconds()<=60) {
-               Double findkm = deliveryassignservice.findkm(order.getRestaurant().getTown(), userprofile.getSocietyName());
+               Double findkm = deliveryassignservice.findkm(order.getRestaurant().getTown(), userprofile.getTown());
 
                if(findkm<=5){
                    filterorder.add(order);
@@ -161,7 +163,7 @@ throw new BadRequestException("Session expired, order cancel");
         return mapper.map(order,OrderDto.class);}
 
 
-    @PreAuthorize("hasRole('DELIVERY_BOY')")
+//    @PreAuthorize("hasRole('DELIVERY_BOY')")
     public OrderDto getorderbyid(Long id) {
        Order order=orderRepo.findByIdmethod(id).
                orElseThrow(()-> new ResourceNoFoundException("not found"));

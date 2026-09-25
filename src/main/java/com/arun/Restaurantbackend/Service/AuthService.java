@@ -8,6 +8,7 @@ import com.arun.Restaurantbackend.Exception.ResourceNoFoundException;
 import com.arun.Restaurantbackend.Handler.Mailsender;
 import com.arun.Restaurantbackend.Repository.*;
 import com.arun.Restaurantbackend.Utilis.CartEnum;
+import com.arun.Restaurantbackend.Utilis.ItemAction;
 import com.arun.Restaurantbackend.Utilis.RoleEnum;
 import com.arun.Restaurantbackend.Utilis.StatusEnum;
 import jakarta.servlet.http.HttpServletRequest;
@@ -270,18 +271,16 @@ System.out.println(deliveryBoy);
 
 
     public User managerprofile(Managerrestprofile managerProfileDto, User user) {
-    user.setProfileComplete(true);
-
-
+        user.setProfileComplete(true);
         ManagerProfile managerProfile=mapper.map(managerProfileDto,ManagerProfile.class);
-    Restaurant restaurant=mapper.map(managerProfileDto.getRestaurant(),Restaurant.class);
-    restaurant.setStatus(String.valueOf(StatusEnum.PENDING));
+        Restaurant restaurant=mapper.map(managerProfileDto.getRestaurant(),Restaurant.class);
+        restaurant.setStatus(String.valueOf(StatusEnum.PENDING));
         restaurant.setManagerProfile(managerProfile);
         restaurant.getMenu().setRestaurant(restaurant);
 
-
         for (Item item : restaurant.getMenu().getItemList()) {
             item.setMenu(restaurant.getMenu());
+            item.setAction(ItemAction.ACTIVE);
 
         }
         managerProfile.setUser(user);

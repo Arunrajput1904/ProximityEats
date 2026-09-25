@@ -1,5 +1,6 @@
 package com.arun.Restaurantbackend.Entity;
 
+import com.arun.Restaurantbackend.Utilis.StatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -50,8 +51,8 @@ public class Restaurant {
 
 
 
-    @NotEmpty
     private String status;
+
 
     @NotEmpty
     @Email

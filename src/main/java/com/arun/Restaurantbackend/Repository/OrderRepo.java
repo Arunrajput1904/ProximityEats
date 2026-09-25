@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +32,18 @@ public interface OrderRepo extends JpaRepository<Order,Long> {
     List<Order> findallbystatus(@Param("status") OrderEnum orderEnum);
 
 
-    @Query("select e from Order e Left join fetch e.itemList where e.id=:id")
+    @Query("select e from Order e where e.id=:id")
     Optional<Order> findByIdmethod(@Param("id") Long id);
 
     @Query("select e from Order e left join fetch e.itemList a Left join fetch e.restaurant k where e.status=:orderEnum  ")
     List<Order> findByStatus(@Param("orderEnum") OrderEnum orderEnum);
+
+
+    @Query("SELECT o FROM Order o WHERE o.status = 'PAYMENT_PENDING' AND o.lastpaymentTime < :cutoffTime")
+    List<Order> findExpiredPendingOrders(@Param("cutoffTime") LocalDateTime cutoffTime);
+
+    @Query("SELECT o FROM Order o WHERE o.status NOT IN ( 'PAYMENT_PENDING')")
+    List<Order> findActiveOrdersForEvaluation();
 }
 
 

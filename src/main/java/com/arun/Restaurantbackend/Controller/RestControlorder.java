@@ -8,8 +8,10 @@ import com.arun.Restaurantbackend.Utilis.OrderEnum;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+@Slf4j
 @SecurityRequirement(name = "bearerAuth")
 
 @RestController
@@ -28,7 +30,13 @@ private final RestaurantService restaurantService;
     }
     @PatchMapping("/change-status/{Rest}/preparedorder/{orderid}")
     ResponseEntity<OrderDto>  makeorderstatusprepared(@PathVariable Long Rest,@PathVariable Long orderid)
-    {OrderDto orderDto= restaurantService.madeorderstaaatuschange(Rest,orderid, OrderEnum.PREPARED,OrderEnum.PREPARING);
+
+
+    {
+
+        log.info(validationhandler.finduser()+"                                  uuuuuuuuuuuuuuuuuuuuuuuuuuuUser");
+
+        OrderDto orderDto= restaurantService.madeorderstaaatuschange(Rest,orderid, OrderEnum.PREPARED,OrderEnum.PREPARING);
         return ResponseEntity.ok(orderDto);
     }
 }
