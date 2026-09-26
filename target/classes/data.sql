@@ -5,14 +5,17 @@ CREATE SCHEMA IF NOT EXISTS user_service;
 CREATE SCHEMA IF NOT EXISTS restaurant_service;
 CREATE SCHEMA IF NOT EXISTS order_details;
 
+-- DELETE FROM role;
 DELETE FROM society_edge;
 DELETE FROM society_n;
 
 INSERT INTO role(type)
-VALUES('ADMIN'),('USER'),('MANAGER'),('DELIVERY_BOY');
--- ==========================================
--- 1. INSERT SOCIETIES (25 Zones, 50 Societies)
--- ==========================================
+VALUES
+    ('ADMIN'),
+    ('USER'),
+    ('MANAGER'),
+    ('DELIVERY_BOY')
+    ON CONFLICT (type) DO NOTHING;
 INSERT INTO society_n (id, society_name, zone_name) VALUES
 -- Nadaun Tehsil Pairs
 (1, 'Nadaun Khas', 'Zone 1'),

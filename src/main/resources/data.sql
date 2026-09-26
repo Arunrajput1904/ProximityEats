@@ -5,7 +5,7 @@ CREATE SCHEMA IF NOT EXISTS user_service;
 CREATE SCHEMA IF NOT EXISTS restaurant_service;
 CREATE SCHEMA IF NOT EXISTS order_details;
 
-
+-- DELETE FROM role;
 DELETE FROM society_edge;
 DELETE FROM society_n;
 

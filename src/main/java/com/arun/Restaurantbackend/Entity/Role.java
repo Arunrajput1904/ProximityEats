@@ -26,6 +26,7 @@ public class Role {
     Long id;
 
     @NotBlank(message = "Role should not be black , empty")
+            @Column(unique = true)
     String type;
 
 

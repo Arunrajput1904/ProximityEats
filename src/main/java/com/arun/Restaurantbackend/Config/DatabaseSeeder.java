@@ -42,7 +42,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("Arun@2004"));
 admin.setCancelApproveTime(0l);
 admin.setPhoneNumber("9882534804");
-            Role role=roleRepo.findByType("ADMIN").get();
+            Role role=roleRepo.findByType("ADMIN").stream().findFirst().get();
 
             admin.setRole(role);
 
