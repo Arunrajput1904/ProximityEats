@@ -1,6 +1,6 @@
 # 🍔 Proximal
 
-🚀 [Live Demo](#) | 📘 [Swagger API Docs](#)
+🚀 [Live Demo](https://proximityeats.onrender.com/login) | 📘 [Swagger API Docs](https://proximityeats.onrender.com/swagger-ui/index.html)
 
 A hyper-local, community-optimized food delivery engine designed for high-density living.
 
