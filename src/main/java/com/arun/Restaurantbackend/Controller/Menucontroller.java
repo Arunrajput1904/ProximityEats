@@ -52,14 +52,13 @@ private final CloudinaryService cloudinaryService;
         MenuDto menuDto = menuService.addmenuitem(menuItem, id);
         return ResponseEntity.ok(menuDto);
     }
-   @CacheEvict(cacheNames = "orderitem",key = "#result.body.id")
+
     @DeleteMapping("/removeitem/{id}")
     public ResponseEntity<MenuDto> removemenuitem(@RequestBody  @Valid  Item menuItem, @PathVariable Long id) {
         MenuDto menuDto = menuService.removemenuitem(menuItem, id);
         return ResponseEntity.ok(menuDto);
     }
 
-    @CachePut(cacheNames = "orderitem",key = "#result.body.id")
     @PatchMapping("/updateprice/{id}/{price}")
     public ResponseEntity<ItemDto> updatemenuitem(@PathVariable  Long id, Long price) {
         ItemDto item = menuService.updateprice(id, price);

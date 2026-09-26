@@ -29,7 +29,7 @@ public class Bundle {
 
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "restaurant_id")
     Restaurant restaurant;
 
@@ -46,7 +46,7 @@ public class Bundle {
     @CreationTimestamp
     LocalDateTime createdAt;
 
-    @OneToMany(orphanRemoval = true,fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "bundle", orphanRemoval = true,fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     List<OrderBundle> orderBundles=new ArrayList<>();
 
 

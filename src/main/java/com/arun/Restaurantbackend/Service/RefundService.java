@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,8 +41,32 @@ public class RefundService {
     private final BundleRepo bundleRepo;
 
 
+
+    @Scheduled(cron = "0/25 * * * * *")
     @Transactional
-    @Scheduled(cron = "0 10 * * * *")
+    public void orderSettlementTask() {
+
+        for (Order order : orderRepo.findByStatus(OrderEnum.PAYMENT_DONE)) {
+
+            if (order.getOrderType()==(OrderType.BUNDLE)) {
+                Bundle bundle = bundleRepo.findOrderById(order.getId()).orElse(null);
+                if (bundle != null) {
+
+
+                    bundleRepo.delete(bundle);
+                }
+                log.info(bundle+"  deleted ");
+            }
+            orderRepo.delete(order);
+
+        }
+    }
+
+
+
+
+    @Transactional
+    @Scheduled(cron = "0/10 * * * * *")
     void ordersettlement() {
 
         LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
@@ -52,11 +77,13 @@ public class RefundService {
                 Bundle bundle = bundleRepo.findOrderById(order.getId()).orElse(null);
                 if (bundle != null) {
 
+
                     bundleRepo.delete(bundle);
                 }
             }
-
-            order.setStatus(OrderEnum.PAYMENT_DONE);
+            else {
+                order.setStatus(OrderEnum.PAYMENT_DONE);
+            }
         }
 
         orderRepo.saveAll(expiredOrders);
@@ -64,7 +91,11 @@ public class RefundService {
         List<Order> ordersToEvaluate = orderRepo.findActiveOrdersForEvaluation();
         ordersToEvaluate.forEach(this::evaluateorder);
 
-        log.info("Order settlement task completed successfully.");
+
+
+        log.info("Order settlement task completed successfully."+" "+orderRepo.findAll());
+
+
     }
 
 
@@ -87,7 +118,16 @@ if(order.getStatus().equals(OrderEnum.CONFIRMED) && order.getLastpaymentTime().i
     return;
 }
         if (order.getStatus().equals(OrderEnum.PAYMENT_PENDING) || order.getStatus().equals(OrderEnum.PAYMENT_DONE)) {
-            orderRepo.delete(order);
+            if (order.getOrderType().equals(OrderType.BUNDLE)) {
+                Bundle bundle = bundleRepo.findOrderById(order.getId()).orElse(null);
+                if (bundle != null) {
+log.info(bundle+"  deleted ");
+
+                    bundleRepo.delete(bundle);
+                }
+            }else{
+                orderRepo.delete(order);
+            }
             return;
         }
 
@@ -213,7 +253,7 @@ if(order.getStatus().equals(OrderEnum.CONFIRMED) && order.getLastpaymentTime().i
                 }
                 log.info(userwallet.getBalance()+"  ....................................................................");
                 order.setStatus(OrderEnum.PAYMENT_DONE);
-//                orderRepo.delete(order);
+
             }
             else if(order.getStatus().equals(OrderEnum.PREPARING)){
                 if(restaurant.getCancelApproveTime()<=Cancelationlimit){
@@ -260,23 +300,19 @@ if(order.getStatus().equals(OrderEnum.CONFIRMED) && order.getLastpaymentTime().i
             }
             else if (order.getStatus().equals(OrderEnum.OUT_FOR_DELIVERY)){
                 DeliveryBoy deliveryBoy = null;
-                if(order.getOrderType().equals(OrderType.BUNDLE)){
+                if(order.getOrderType()==OrderType.BUNDLE){
                     Bundle bundle = bundleRepo.findOrderById(order.getId()).orElseThrow(() -> new ResourceNoFoundException("Resource is not found"));
-
                     deliveryBoy= bundle.getDeliveryBoy();
-                }
+
+                    log.info(bundle+"        Delivery System ................??????????????????");
+
+                                    }
                 else{
                     deliveryBoy = deliveryBoyRepo.findByorderid(order.getId()).orElseThrow(()
                             -> new ResourceNoFoundException("Delivery boy is not found"));
                 }
-
-
-
                 User manageruser = manager.getUser();
-
-
                 User userprofile = deliveryBoy.getUser();
-
                 if (userprofile.getCancelApproveTime() < Cancelationlimit*3) {
                     Wallet restaurantwallet = manageruser.getWallet();
                     Wallet adminwallet = admin.getWallet();

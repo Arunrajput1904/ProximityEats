@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,7 +48,8 @@ public class UserController {
 
 
 
-    @GetMapping("/search/{name}")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/searchRestuarant/{name}")
     public ResponseEntity<UserResponse2> findbyname(@PathVariable String name){
        User user=validationhandler.finduser();
         List<DemoRestaurant>list=restaurantService.findbynames(name);
@@ -57,8 +59,8 @@ public class UserController {
 
 
 
-
-    @GetMapping("/getall")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/getallrestaurant")
     public  ResponseEntity<UserResponse2> findall(@RequestParam(defaultValue = "name") String SortBy, @RequestParam(defaultValue = "0") Integer pageNumber, @RequestParam(defaultValue = "1")Integer size){
         User user=validationhandler.finduser();
         List<DemoRestaurant>list=restaurantService.findbystatus(SortBy,pageNumber,size, "ACTIVE");
@@ -68,12 +70,13 @@ public class UserController {
 
 
 
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/getrestaurant/{id}")
     public ResponseEntity<RestaurantDto> getbyid(@PathVariable Long id){
            RestaurantDto restaurantDto=restaurantService.findbyid(id);
            return ResponseEntity.ok(restaurantDto);
     }
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/addaddress")
     public  ResponseEntity<Userprofile> userprofileadd(@RequestBody @Valid Userprofile userprofile){
         Userprofile userprofile1=userprofileService.addaddress(userprofile);

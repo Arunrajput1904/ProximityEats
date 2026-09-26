@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -25,6 +26,7 @@ public class SubscriptionController {
 
 
     @PostMapping("/subscribe")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> subscribe(@RequestBody  UserSubscribeRequest user) {
         try {
             Subscription sub = subscriptionService.processCheckout(user.getIdempotencyKey(),user.getPlanId());
@@ -40,6 +42,7 @@ public class SubscriptionController {
     }
 
     @PatchMapping("/cancelsubscription/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> cancelorder(@PathVariable Long id){
         subscriptionService.cancelUserSubscription(id);
         return ResponseEntity.ok("Subscription Cancel Successfully");

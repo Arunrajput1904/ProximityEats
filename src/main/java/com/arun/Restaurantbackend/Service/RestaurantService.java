@@ -69,9 +69,13 @@ public class RestaurantService {
     public RestaurantDto findbyname(String name) {
         Restaurant restaurant = restaurantRepo.findByName(name).orElseThrow(() -> new ResourceNoFoundException("No restaurant of this name"));
         return mapper.map(restaurant, RestaurantDto.class);
+
     }
 
-    @Cacheable(cacheNames = "Restaurant", key = "#id")
+
+
+
+
     public RestaurantDto findbyid(Long id) {
 
         Restaurant restaurant = restaurantRepo.findById(id).orElseThrow(() -> new ResourceNoFoundException("No restaurant of this name"));

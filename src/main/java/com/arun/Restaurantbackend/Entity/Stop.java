@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
-
+@Entity
 //@AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -15,7 +15,9 @@ import lombok.*;
 
 public  class Stop{
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+            Long id;
     Long bundleId;
     int index;
      int value;

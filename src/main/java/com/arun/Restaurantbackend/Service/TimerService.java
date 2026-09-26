@@ -244,7 +244,7 @@ private final BundleService bundleService;
         List<Order>preparedOrder=orderRepo.findByStatus(OrderEnum.PREPARING);
 
         Map<Long, List<Order>> collect = preparedOrder
-                .stream().filter(x -> !x.getOrderType().equals(OrderType.BUNDLE))
+                .stream().filter(x -> x.getOrderType()!=OrderType.BUNDLE)
                 .filter(x -> x.getLastUpdateTime().isAfter(LocalDateTime.now().minusMinutes(3)))
                 .collect(Collectors.groupingBy(x -> x.getRestaurant().getId()));
 
@@ -315,9 +315,12 @@ private final BundleService bundleService;
                     list.removeAll(cancelorder);
                     String town = x.getRestaurant().getTown();
                     Double price = x.getPrice();
+if(!cancelorder.isEmpty()){
 
-                    bundleService.bundleupdationOrOrderDynamicchange(x,town);
-                    x.setPrice(price);
+    bundleService.bundleupdationOrOrderDynamicchange(x,town);
+    x.setPrice(price);
+
+}
                 });
 
         bundleStream.stream()

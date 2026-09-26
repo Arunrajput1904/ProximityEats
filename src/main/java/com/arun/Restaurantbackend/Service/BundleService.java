@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BundleService {
     private final RestaurantRepo restaurantRepo;
-    private ModelMapper mapper;
+    private  final    ModelMapper mapper;
     private final BundleRepo bundleRepo;
     private final DELIVERYASSIGNSERVICE deliveryassignservice;
    private final Validationhandler validationhandler;
@@ -66,8 +66,12 @@ public class BundleService {
     public BundleDto makethebundleaccept(Long bundleId) {
          User user=validationhandler.finduser();
         Bundle bundle=bundleRepo.findById(bundleId).orElseThrow(()-> new BadRequestException("Bundle id  is wrong"));
+
+        DeliveryBoy deliveryBoy=deliveryBoyRepo.findByUserid(user.getId()).orElseThrow(()-> new ResourceNoFoundException("Not found user , Invalid Acccess "));
+
+
         List<Stop> byBundleId = stopRepo.findByBundleId(bundle.getId());
-        if(!(bundle.getLastUpdateTime().isAfter(LocalDateTime.now().minusMinutes(2) ) && bundle
+        if(!(bundle.getLastUpdateTime().isAfter(LocalDateTime.now().minusMinutes(3) ) && bundle
                 .getStatus().equals(BundleStatus.PREPARED))){
             throw new AccessDeniedException("Invalid access to bundleorder");
         }
@@ -75,9 +79,11 @@ public class BundleService {
         bundle.setStatus(BundleStatus.OUT_OF_DELIVERY);
         bundle.getOrderBundles().stream().map(x-> x.getOrder()).forEach(x-> {
              x.setStatus(OrderEnum.OUT_FOR_DELIVERY);
+
              x.setRestaurant(bundle.getRestaurant());
 
         });
+        bundle.setDeliveryBoy(deliveryBoy);
         BundleDto bundleDto=mapper.map(bundle,BundleDto.class);
 
         List<StopDto> list = byBundleId.stream().map((element) -> mapper.map(element, StopDto.class)).toList();
@@ -137,7 +143,9 @@ User user=validationhandler.finduser();
     public BundleDto preparedBundle(Long id) {
 
         User finduser = validationhandler.finduser();
-        Bundle bundle=bundleRepo.findById(id).orElseThrow(()-> new ResourceNoFoundException("Bundle is Not Found"));
+        Bundle bundle=bundleRepo.findById(id).orElseThrow(()-> new
+                ResourceNoFoundException
+                ("Bundle is Not Found"));
 
         if(!bundle.getRestaurant().getManagerProfile().getUser().getId().equals(finduser.getId())){
             throw new ConflictException("Invalid Bundle access");
@@ -191,17 +199,11 @@ User user=validationhandler.finduser();
 
 
                 void createnewBundle(Long id,String zone, List<Order> value) {
-
-
-
         Bundle bundle1=new Bundle();
-
-
                     bundle1.setZoneName(zone);
                     bundle1.setStatus(BundleStatus.BUILDING);
                     bundle1.setCreatedAt(LocalDateTime.now());
                     bundle1.setRestaurant(restaurantRepo.findById(id).orElse(null));
-
                     List<OrderBundle> list = value.stream()
                             .filter(x-> x.getCancel() == null)
                             .map(x -> OrderBundle.builder().bundle(bundle1).order(x).build())
@@ -214,13 +216,12 @@ User user=validationhandler.finduser();
                 bundle1.setItemCount(bundle1.getItemCount()+1);
             }
             else{
-                if(bundle1.getOrderBundles().size()>0) {
-                    if(bundle1.getOrderBundles().size()>0) {
+                    if(bundle1.getOrderBundles().size()>=0) {
                         String town = bundle1.getOrderBundles().getFirst().getOrder().getRestaurant().getTown();
 
                         bundleupdationOrOrderDynamicchange(bundle1,town);
                     }
-                }
+//                }
                 List <Order>list1= new ArrayList<>();
                 list1.addAll(i,value);
                 createnewBundle(id,zone,list1);
@@ -268,7 +269,7 @@ User user=validationhandler.finduser();
         }
         String town = bundle1.getOrderBundles().getFirst().getOrder().getRestaurant().getTown();
 
-        if(bundle1.getOrderBundles().size()>0) {
+        if(bundle1.getOrderBundles().size()>1) {
             bundleupdationOrOrderDynamicchange(bundle1,town);
         }
 

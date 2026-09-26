@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -36,12 +37,11 @@ public class GroupCartController {
     private final GroupPayRepo groupPayRepo;
     private final GroupCartRepo groupCartRepo;
 private final Validationhandler validationhandler;
-
     private final GroupCartService groupCartService;
 
 
-
     @PostMapping("/creategroupcart")
+    @PreAuthorize("hasRole('USER')")
     ResponseEntity<GroupCartDto> createGroupCart(@RequestBody @Valid CreateGroupCartRequest request){
         GroupCartDto groupCartDto=groupCartService.createGroupCart(request);
         return new  ResponseEntity<>(groupCartDto, HttpStatus.CREATED);
@@ -49,6 +49,7 @@ private final Validationhandler validationhandler;
 
 
     @PostMapping("/joingroup")
+    @PreAuthorize("hasRole('USER')")
     ResponseEntity<GroupCartDto> joingroup(@RequestBody @Valid JoinGroupCartRequest request){
 
 
@@ -59,12 +60,14 @@ private final Validationhandler validationhandler;
 
 
     @PostMapping("/addItem")
+    @PreAuthorize("hasRole('USER')")
     ResponseEntity<GroupCartDto> additemtorest(@RequestBody @Valid AddGroupCartItemRequest request){
         GroupCartDto groupCartDto=groupCartService.additemtorest(request);
         return new  ResponseEntity<>(groupCartDto, HttpStatus.CREATED);
     }
 
     @PostMapping("/removeItem")
+    @PreAuthorize("hasRole('USER')")
     ResponseEntity<GroupCartDto> removeitemtorest(@RequestBody @Valid RemoveGroupCartItemRequest request){
         GroupCartDto groupCartDto=groupCartService.removeitemtorest(request);
         return new  ResponseEntity<>(groupCartDto, HttpStatus.OK);
@@ -89,6 +92,7 @@ groupItemRepo.saveAll(groupCart1.getGroupItemList());
     }
 
     @GetMapping("/joincartshow")
+    @PreAuthorize("hasRole('USER')")
     public void makeJoinuser(@ModelAttribute("JoinUser") JoinUser user){
         GroupCart groupCart=groupCartRepo.findById(user.getGroupId())
                 .orElseThrow(()-> new ResourceNoFoundException("No resource is found"));

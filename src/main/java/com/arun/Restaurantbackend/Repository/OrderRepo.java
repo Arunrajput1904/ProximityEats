@@ -3,8 +3,10 @@ package com.arun.Restaurantbackend.Repository;
 import com.arun.Restaurantbackend.Entity.Order;
 import com.arun.Restaurantbackend.Utilis.OrderEnum;
 import jakarta.persistence.LockModeType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -44,6 +46,8 @@ public interface OrderRepo extends JpaRepository<Order,Long> {
 
     @Query("SELECT o FROM Order o WHERE o.status NOT IN ( 'PAYMENT_PENDING')")
     List<Order> findActiveOrdersForEvaluation();
+
+
 }
 
 

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,8 @@ public class OrderController{
     private final OrderService orderService;
     private final Validationhandler validationhandler;
 
-    @CachePut(cacheNames = "orderitem",key = "#result.body.id")
+
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/madeorder")
     public ResponseEntity<OrderDto> makeorder(@RequestBody  @Valid  Orderaddress orderaddress){
         log.info("orderid............"+orderaddress.getAddressId());
@@ -34,6 +36,7 @@ public class OrderController{
       return ResponseEntity.ok(orderDto);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/restorder/restuarant/{restid}")
     public  ResponseEntity<List<OrderDto>>  getallorderofRestrastraunt(@PathVariable Long restid){
            List<OrderDto>list=orderService.findallbyrest(restid).orElseThrow(()-> new ResourceNoFoundException("Not found "));
@@ -41,6 +44,7 @@ public class OrderController{
 
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/restorder/item/{userid}")
     public  ResponseEntity<List<OrderDto>>  getallorderofuser(@PathVariable Long userid){
         List<OrderDto>list=orderService.findallbyuser(userid).orElseThrow(()-> new ResourceNoFoundException("Not found "));
@@ -48,18 +52,21 @@ public class OrderController{
 
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("/usercancel/{id}")
     public  ResponseEntity<OrderDto>  cancelorderbyuser(@PathVariable Long id){
         OrderDto orderDto=orderService.cancelorder(id);
         return ResponseEntity.ok(orderDto);
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/restaurantcancel/{id}")
     public  ResponseEntity<OrderDto>  cancelorderbyrest(@PathVariable Long id){
         OrderDto orderDto=orderService.cancelorderbyrest(id);
         return ResponseEntity.ok(orderDto);
     }
 
+    @PreAuthorize("hasRole('Delivery_Boy')")
     @PatchMapping("/deliveryboycancel/{id}")
     public ResponseEntity<OrderDto>  cancelorderbydelivery(@PathVariable Long id){
         OrderDto orderDto=orderService.cancelybydelivery(id);

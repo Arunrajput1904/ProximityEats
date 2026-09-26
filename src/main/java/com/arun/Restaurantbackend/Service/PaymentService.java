@@ -113,9 +113,9 @@ public class PaymentService {
             throw new IllegalPaymentException("Insufficient money");
         }
 //
-//        if (order.getLastpaymentTime().isBefore(LocalDateTime.now())) {
-//            throw new IllegalPaymentException("payment session expired , try again");
-//        }
+        if (order.getLastpaymentTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalPaymentException("payment session expired , try again");
+        }
         Cart cart = cartRepo.findByUSerIdAndStatus(user.getId(), CartEnum.ACTIVE).orElseThrow(() -> new ResourceNoFoundException("Not found cart"));
         synchronized (this) {
             Double Admincurrentbalance = adminuser.getWallet().getBalance();

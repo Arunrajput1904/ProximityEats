@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@ToString
+@ToString
 @Entity
 @Table(schema = "restaurant_service")
 public class Order {
@@ -55,7 +55,7 @@ public class Order {
     @JoinColumn(name = "address_id")
     Userprofile address;
 
-    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order",cascade = CascadeType.ALL,orphanRemoval = true)
             @JsonIgnore
             @ToString.Exclude
     List<OrderItem> itemList=new ArrayList<>();
@@ -96,13 +96,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     OrderType orderType;
 
-
-
-    @PreRemove
-    public void trackDeletion() {
-        System.err.println("🚨 WARNING: Order entity with ID " + this.id + " is being deleted! 🚨");
-        Thread.dumpStack();
-    }
 
 
 

@@ -10,6 +10,10 @@ public enum OrderEnum {
     DELIVERED,
     REFUND,
     PROCESSING_REFUND,
-    PAYMENT_DONE, EXPIRED_TIME
+    PAYMENT_DONE, EXPIRED_TIME;
 
+
+    public final boolean equals(OrderEnum other) {
+        return this == other;
+    }
 }

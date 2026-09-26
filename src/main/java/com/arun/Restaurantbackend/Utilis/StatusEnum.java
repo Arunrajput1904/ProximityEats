@@ -7,5 +7,9 @@ public enum StatusEnum {
     UNAVAILABLE,
     SUSPENDED,
     ACTIVE,
- INACTIVE, PENDING
+ INACTIVE, PENDING;
+
+ public final boolean equals(StatusEnum other) {
+  return this == other;
+ }
 }

@@ -35,6 +35,7 @@ private final UserprofileRepo userprofileRepo;
     private final GroupPayRepo groupPayRepo;
 private final TimerService timerService;
     @Transactional
+
     public GroupCartDto createGroupCart(CreateGroupCartRequest request) {
        User user1= validationhandler.finduser();
         User user= userRepo.findById(user1.getId())
