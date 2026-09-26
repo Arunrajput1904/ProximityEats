@@ -17,5 +17,5 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-ENV JAVA_OPTS="-Xms512m -Xmx2g"
+ENV JAVA_OPTS="-Xms128m -Xmx256m -XX:MaxMetaspaceSize=128m -Xss512k"
 ENTRYPOINT sh -c 'java $JAVA_OPTS -jar app.jar'
