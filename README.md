@@ -17,7 +17,7 @@ Traditional food-delivery backends treat every order as an isolated event—one 
 - **Ghost Availability:** Restaurants toggle themselves "open" without knowing if a delivery partner is actually nearby, leading to accepted orders that sit indefinitely on the counter.
 - **Static Radii vs. Dynamic Weather:** A 10km delivery radius makes sense on a sunny day, but causes catastrophic delays during a thunderstorm. Menus don't automatically adapt to changing physical realities.
 
-> **💡 The Solution:** BlocBites solves this by treating the backend as a spatially aware, dynamic ecosystem. It automates batching, strictly manages real-world availability, and secures the entire pipeline from group-cart to gateway.
+> **💡 The Solution:** Proximal solves this by treating the backend as a spatially aware, dynamic ecosystem. It automates batching, strictly manages real-world availability, and secures the entire pipeline from group-cart to gateway.
 
 ---
 
