@@ -365,4 +365,15 @@ if(!cancelorder.isEmpty()){
 
 
 
+    @Scheduled(cron = "* 5 * * * *")
+    public void keepAlive() {
+         RestClient.create()
+        .get()
+                .uri("https://proximityeats.onrender.com/actuator/health")
+                .retrieve()
+                .toBodilessEntity();
+
+        System.out.println("Keep alive request sent");
+    }
+
 }

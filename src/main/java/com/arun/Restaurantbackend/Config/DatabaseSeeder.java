@@ -29,12 +29,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
 
-               Optional<User>userOptional=userRepository.findByEmail("arunrajput161777@gmail.com");
-
+               Optional<User>userOptional=userRepository.findByEmail("arunrajput16177@gmail.com");
                if(userOptional.isPresent()) {
                    return;
                }
-
          User admin = new User();
             admin.setName("Arun");
             admin.setEmail("arunrajput16177@gmail.com");
