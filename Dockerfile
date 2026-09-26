@@ -17,5 +17,5 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
+ENV JAVA_OPTS="-Xms512m -Xmx2g"
+ENTRYPOINT sh -c 'java $JAVA_OPTS -jar app.jar'
