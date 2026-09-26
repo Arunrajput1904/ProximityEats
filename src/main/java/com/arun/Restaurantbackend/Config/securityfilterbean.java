@@ -75,7 +75,7 @@ private final logouthandler logouthandler;
                                                 ,"/auth/forget","/auth/sendEmail","/emailsend.html"
                                                 ,"/auth/**","/paydone/**",
                                                 "/templates/**","/signup.html","/manager.html",
-                                                "/auth/change-password"
+                                                "/auth/change-password","/actuator/health"
                                         ,"/paydone/**","/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/docs"
                                                 ,"/updatepassword.html","/login.html","/login","/topic/**","/loginsuccess").permitAll()
                                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
